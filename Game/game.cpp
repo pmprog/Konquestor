@@ -101,7 +101,10 @@ void Game::Render()
 				{
 					al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 24, p->OwnedBy->Colour );
 				}
+
 				al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 20, p->PlanetColour );
+				al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 20, al_map_rgba( 0, 0, 0, 128 ) );
+				al_draw_filled_circle( 38 + (x * 60), 38 + (y * 60), 16, p->PlanetColour );
 
 				menuFont->DrawString( 16 + (x * 60), 10 + (y * 60), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 0, 0, 0 ) );
 				menuFont->DrawString( 14 + (x * 60),  8 + (y * 60), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 255, 255, 255 ) );
