@@ -88,7 +88,8 @@ void Menu::Render()
 
 	menuFont->DrawString( DISPLAY->GetWidth() / 2, yPos, "Local Game", FontHAlign::CENTRE, (selectedItem == 0 ? al_map_rgb( 255, 255, 255 ) : al_map_rgb( 80, 80, 80 )) );
 	yPos += (menuFont->GetFontHeight() * 1.2f);
-	menuFont->DrawString( DISPLAY->GetWidth() / 2, yPos, "Network Game", FontHAlign::CENTRE, (selectedItem == 1 ? al_map_rgb( 255, 255, 255 ) : al_map_rgb( 80, 80, 80 )) );
+	//menuFont->DrawString( DISPLAY->GetWidth() / 2, yPos, "Network Game", FontHAlign::CENTRE, (selectedItem == 1 ? al_map_rgb( 255, 255, 255 ) : al_map_rgb( 80, 80, 80 )) );
+	menuFont->DrawString( DISPLAY->GetWidth() / 2, yPos, "Network Game", FontHAlign::CENTRE, (selectedItem == 1 ? al_map_rgb( 80, 80, 80 ) : al_map_rgb( 48, 48, 48 )) );
 	yPos += (menuFont->GetFontHeight() * 1.2f);
 	menuFont->DrawString( DISPLAY->GetWidth() / 2, yPos, "Options", FontHAlign::CENTRE, (selectedItem == 2 ? al_map_rgb( 255, 255, 255 ) : al_map_rgb( 80, 80, 80 )) );
 	yPos += (menuFont->GetFontHeight() * 1.2f);

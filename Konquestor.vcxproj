@@ -119,6 +119,7 @@
     <ClCompile Include="Framework\Transitions\strips.cpp" />
     <ClCompile Include="Framework\Transitions\tiled.cpp" />
     <ClCompile Include="Game\boot.cpp" />
+    <ClCompile Include="Game\game.cpp" />
     <ClCompile Include="Game\menu.cpp" />
     <ClCompile Include="Game\newlocal.cpp" />
   </ItemGroup>
@@ -166,9 +167,12 @@
     <ClInclude Include="Framework\Transitions\tiled.h" />
     <ClInclude Include="Framework\Transitions\transitions.h" />
     <ClInclude Include="Game\boot.h" />
+    <ClInclude Include="Game\game.h" />
     <ClInclude Include="Game\includes.h" />
     <ClInclude Include="Game\menu.h" />
     <ClInclude Include="Game\newlocal.h" />
+    <ClInclude Include="Game\planet.h" />
+    <ClInclude Include="Game\player.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

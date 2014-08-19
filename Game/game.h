@@ -3,22 +3,24 @@
 
 #include "includes.h"
 #include "player.h"
+#include "planet.h"
 
-class NewLocalGame : public Stage
+#define MAP_WIDTH		8
+#define MAP_HEIGHT	7
+
+class Game : public Stage
 {
 	private:
-		std::vector<Player*> players;
+		std::vector<Player*> playerList;
+		int currentPlayer;
 
-		TTFFont* titleFont;
-		TTFFont* menuFont;
-
-		Form* newGameForm;
+		Planet* galacticMap[ MAP_WIDTH * MAP_HEIGHT ];
+		std::vector<Planet*> planetList;
 
   public:
-		
 
-		NewLocalGame();
-		~NewLocalGame();
+		Game( int Planets, std::vector<Player*> Players );
+		~Game();
 
     // Stage control
     virtual void Begin();

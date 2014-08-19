@@ -1,13 +1,12 @@
 
 #include "newlocal.h"
 #include "../Framework/Primitives/strings.h"
+#include "game.h"
 
 NewLocalGame::NewLocalGame()
 {
 	titleFont = FontCache::LoadFont( "resources/game.ttf", 128 );
 	menuFont = FontCache::LoadFont( "resources/game.ttf", 48 );
-	DISPLAY->MouseVisible( true );
-	selectedItem = 0;
 
 	newGameForm = new Form();
 	newGameForm->Location.X = 10;
@@ -153,35 +152,6 @@ void NewLocalGame::EventOccurred(Event *e)
 			delete FRAMEWORK->ProgramStages->Pop();
 			return;
 		}
-
-		switch( e->Data.Keyboard.KeyCode )
-		{
-			case ALLEGRO_KEY_UP:
-				selectedItem = (selectedItem + 3) % 4;
-				break;
-			case ALLEGRO_KEY_DOWN:
-				selectedItem = (++selectedItem) % 4;
-				break;
-			case ALLEGRO_KEY_ENTER:
-			case ALLEGRO_KEY_PGDN:
-				switch( selectedItem )
-				{
-					case 0:
-						break;
-					case 1:
-						break;
-					case 2:
-						break;
-					case 3:
-						FRAMEWORK->ShutdownFramework();
-						return;
-				}
-				break;
-		}
-	}
-
-	if( e->Type == EVENT_MOUSE_DOWN )
-	{
 	}
 
 	if( e->Type == EVENT_FORM_INTERACTION )
@@ -191,10 +161,31 @@ void NewLocalGame::EventOccurred(Event *e)
 			Label* l = new Label( newGameForm->FindControl("LIST_PLAYERS"), ((TextEdit*)newGameForm->FindControl("EDIT_NAME"))->GetText(), menuFont );
 			l->Size.Y = menuFont->GetFontHeight() + 2;
 			l->BackgroundColour = al_map_rgb( (rand() % 128) + 128, (rand() % 128) + 128, (rand() % 128) + 128 );
+			l->ForegroundColour = al_map_rgb( 0, 0, 0 );
+
+			Player* p = new Player();
+			p->Name = ((TextEdit*)newGameForm->FindControl("EDIT_NAME"))->GetText();
+			p->Interaction = ( ((CheckBox*)newGameForm->FindControl("CHECK_HUMAN"))->Checked ? PlayerType::LocalHuman : PlayerType::LocalComputer );
+			p->Colour = l->BackgroundColour;
+			players.push_back( p );
+			((TextEdit*)newGameForm->FindControl("EDIT_NAME"))->SetText("");
 		}
 		if( e->Data.Forms.RaisedBy->Name == "BUTTON_BACK" && e->Data.Forms.EventFlag == FormEventType::ButtonClick )
 		{
 			delete FRAMEWORK->ProgramStages->Pop();
+			return;
+		}
+		if( e->Data.Forms.RaisedBy->Name == "BUTTON_START" && e->Data.Forms.EventFlag == FormEventType::ButtonClick )
+		{
+			if( players.size() < 2 )
+			{
+				// TODO: Error
+				return;
+			}
+
+			Game* g = new Game( players.size() + ((HScrollBar*)newGameForm->FindControl("SCROLL_PLANETS"))->Value, players );
+			delete FRAMEWORK->ProgramStages->Pop();
+			FRAMEWORK->ProgramStages->Push( g );
 			return;
 		}
 
