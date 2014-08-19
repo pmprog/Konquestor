@@ -3,10 +3,15 @@
 
 #include "control.h"
 
+#define CHECKBOX_SELECT_TOGGLE_TIME		30
+
 class CheckBox : public Control
 {
 
 	private:
+		bool selectedDraw;
+		int selectedTimer;
+
 		ALLEGRO_BITMAP* imagechecked;
 		ALLEGRO_BITMAP* imageunchecked;
 

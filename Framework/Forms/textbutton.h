@@ -4,10 +4,14 @@
 #include "control.h"
 #include "../Display/fontcache.h"
 
+#define TEXTBUTTON_SELECT_TOGGLE_TIME		30
+
 class TextButton : public Control
 {
 
 	private:
+		bool selectedDraw;
+		int selectedTimer;
 		std::string text;
 		TTFFont* font;
 

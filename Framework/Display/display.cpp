@@ -174,3 +174,18 @@ void Display::Render()
 
 	al_set_target_bitmap( screenGameBuffer );
 }
+
+Vector2* Display::ScreenPointToGamePoint( Vector2* Point )
+{
+	return new Vector2( ScreenXToGameX( Point->X ), ScreenYToGameY( Point->Y ) );
+}
+
+float Display::ScreenXToGameX( float X )
+{
+	return ((X - gameScreenLocation.X) / gameScreenSize.X) * gameSize.X;
+}
+
+float Display::ScreenYToGameY( float Y )
+{
+	return ((Y - gameScreenLocation.Y) / gameScreenSize.Y) * gameSize.Y;
+}

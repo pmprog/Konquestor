@@ -98,7 +98,7 @@ NewLocalGame::NewLocalGame()
 	hs->Maximum = 9;
 	hs->Value = 4;
 	hs->BackgroundColour = al_map_rgb( 0, 0, 0 );
-
+	hs->CanFocus = true;
 
 	tb = new TextButton( newGameForm, "Back", menuFont );
 	tb->Name = "BUTTON_BACK";
@@ -117,6 +117,8 @@ NewLocalGame::NewLocalGame()
 	tb->Location.Y = 366 - tb->Size.Y;
 	tb->TextHAlign = HorizontalAlignment::Centre;
 	tb->TextVAlign = VerticalAlignment::Centre;
+
+	newGameForm->FocusNext();
 }
 
 NewLocalGame::~NewLocalGame()
@@ -169,6 +171,7 @@ void NewLocalGame::EventOccurred(Event *e)
 			p->Colour = l->BackgroundColour;
 			players.push_back( p );
 			((TextEdit*)newGameForm->FindControl("EDIT_NAME"))->SetText("");
+			newGameForm->SetFocus( newGameForm->FindControl("EDIT_NAME") );
 		}
 		if( e->Data.Forms.RaisedBy->Name == "BUTTON_BACK" && e->Data.Forms.EventFlag == FormEventType::ButtonClick )
 		{

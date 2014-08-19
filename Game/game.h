@@ -11,6 +11,7 @@
 class Game : public Stage
 {
 	private:
+		TTFFont* menuFont;
 		std::vector<Player*> playerList;
 		int currentPlayer;
 

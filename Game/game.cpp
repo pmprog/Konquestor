@@ -1,8 +1,11 @@
 
 #include "game.h"
+#include "../Framework/Primitives/strings.h"
 
 Game::Game( int Planets, std::vector<Player*> Players )
 {
+	menuFont = FontCache::LoadFont( "resources/game.ttf", 48 );
+
 	playerList = Players;
 	// TODO: Sync on netgame
 	currentPlayer = rand() % playerList.size();
@@ -46,6 +49,7 @@ Game::Game( int Planets, std::vector<Player*> Players )
 
 Game::~Game()
 {
+	FontCache::UnloadFont( menuFont );
 }
 
 void Game::Begin()
@@ -85,6 +89,7 @@ void Game::Render()
 {
 	al_clear_to_color( al_map_rgb( 0, 0, 0 ) );
 
+	int pidx = 0;
 	for( int y = 0; y < MAP_HEIGHT; y++ )
 	{
 		for( int x = 0; x < MAP_WIDTH; x++ )
@@ -97,6 +102,10 @@ void Game::Render()
 					al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 24, p->OwnedBy->Colour );
 				}
 				al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 20, p->PlanetColour );
+
+				menuFont->DrawString( 16 + (x * 60), 10 + (y * 60), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 0, 0, 0 ) );
+				menuFont->DrawString( 14 + (x * 60),  8 + (y * 60), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 255, 255, 255 ) );
+				pidx++;
 			}
 
 			al_draw_line( 10 + (x * 60), 10 + (y * 60), 10 + ((x + 1) * 60), 10 + (y * 60), al_map_rgb( 255, 255, 255 ), 1 );

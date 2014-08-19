@@ -28,9 +28,6 @@ class Control
 
 		virtual void OnRender();
 
-		void SetFocus(Control* Child);
-		bool IsFocused();
-
 		void ResolveLocation();
 
 		Control* GetRootControl();
@@ -41,14 +38,16 @@ class Control
 		Vector2 Size;
 		ALLEGRO_COLOR BackgroundColour;
 		ALLEGRO_COLOR ForegroundColour;
+		bool CanFocus;
+		bool AllowTab;
 
 		std::vector<Control*> Controls;
 
 		Control(Control* Owner);
 		virtual ~Control();
 
-		Control* GetActiveControl();
 		void Focus();
+		bool IsFocused();
 
 		virtual void EventOccured(Event* e);
 		void Render();

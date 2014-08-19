@@ -3,9 +3,13 @@
 
 #include "control.h"
 
+#define VSCROLLBAR_SELECT_TOGGLE_TIME		30
+
 class VScrollBar : public Control
 {
 	private:
+		bool selectedDraw;
+		int selectedTimer;
 		bool capture;
 
 		void LoadResources();

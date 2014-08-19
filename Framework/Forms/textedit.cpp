@@ -5,6 +5,7 @@
 
 TextEdit::TextEdit( Control* Owner, std::string Text, TTFFont* Font ) : Control( Owner ), text( Text ), font( Font ), TextHAlign( HorizontalAlignment::Left ), TextVAlign( VerticalAlignment::Centre ), editting(false), SelectionStart(Text.length()), caretTimer(0), caretDraw(false), editShift(false), editAltGr(false)
 {
+	CanFocus = true;
 }
 
 TextEdit::~TextEdit()
@@ -21,16 +22,22 @@ void TextEdit::EventOccured( Event* e )
 	{
 		if( e->Data.Forms.RaisedBy == this )
 		{
-			if( e->Data.Forms.EventFlag == FormEventType::GotFocus || e->Data.Forms.EventFlag == FormEventType::MouseClick || e->Data.Forms.EventFlag == FormEventType::KeyDown )
+			if( e->Data.Forms.EventFlag == FormEventType::GotFocus )
 			{
 				editting = true;
-				//e->Handled = true;
+				e->Handled = true;
+			}
+			// if( !IsFocused() && ( e->Data.Forms.EventFlag == FormEventType::MouseClick || e->Data.Forms.EventFlag == FormEventType::KeyDown ) )
+			if( e->Data.Forms.EventFlag == FormEventType::MouseClick )
+			{
+				Focus();
+				e->Handled = true;
 			}
 			if( e->Data.Forms.EventFlag == FormEventType::LostFocus )
 			{
 				editting = false;
 				RaiseEvent( FormEventType::TextEditFinish );
-				//e->Handled = true;
+				e->Handled = true;
 			}
 		} else if( e->Data.Forms.EventFlag == FormEventType::MouseClick ) {
 			editting = false;

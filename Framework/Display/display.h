@@ -53,5 +53,8 @@ class Display
 		void Render();
 
 		void MouseVisible( bool Visible );
+		Vector2* ScreenPointToGamePoint( Vector2* Point );
+		float ScreenXToGameX( float X );
+		float ScreenYToGameY( float Y );
 
 };

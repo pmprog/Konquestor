@@ -27,7 +27,7 @@ void BootUp::Finish()
 
 void BootUp::EventOccurred(Event *e)
 {
-	if( e->Type == EVENT_KEY_DOWN )
+	if( e->Type == EVENT_KEY_PRESS )
 	{
 		if( e->Data.Keyboard.KeyCode == ALLEGRO_KEY_ESCAPE )
 		{

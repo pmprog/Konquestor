@@ -66,8 +66,26 @@ void HScrollBar::EventOccured( Event* e )
 		FRAMEWORK->PushEvent( ce );
 	}
 
-	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.RaisedBy == this && e->Data.Forms.EventFlag == FormEventType::MouseClick )
+	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.RaisedBy == this && e->Data.Forms.EventFlag == FormEventType::KeyPress )
 	{
+		if( e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_LEFT && Value > Minimum )
+		{
+			Value--;
+			Event* ce = new Event();
+			ce->Type = e->Type;
+			memcpy( (void*)&(ce->Data.Forms), (void*)&(e->Data.Forms), sizeof( FRAMEWORK_FORMS_EVENT ) );
+			ce->Data.Forms.EventFlag = FormEventType::ScrollBarChange;
+			FRAMEWORK->PushEvent( ce );
+		}
+		if( e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_RIGHT && Value < Maximum )
+		{
+			Value++;
+			Event* ce = new Event();
+			ce->Type = e->Type;
+			memcpy( (void*)&(ce->Data.Forms), (void*)&(e->Data.Forms), sizeof( FRAMEWORK_FORMS_EVENT ) );
+			ce->Data.Forms.EventFlag = FormEventType::ScrollBarChange;
+			FRAMEWORK->PushEvent( ce );
+		}
 	}
 }
 
@@ -86,11 +104,25 @@ void HScrollBar::OnRender()
 
 	int xpos = segmentsize * (Value - Minimum);
 	al_draw_filled_rectangle( xpos, 0, xpos + grippersize, Size.Y, ForegroundColour );
+	if( selectedDraw )
+	{
+		al_draw_filled_rectangle( xpos, 0, xpos + grippersize, Size.Y, al_map_rgba( 128, 128, 128, 128 ) );
+	}
+
 }
 
 void HScrollBar::Update()
 {
-	Control::Update();
+	if( IsFocused() )
+	{
+		selectedTimer = (selectedTimer + 1) % HSCROLLBAR_SELECT_TOGGLE_TIME;
+		if( selectedTimer == 0 )
+		{
+			selectedDraw = !selectedDraw;
+		}
+	} else {
+		selectedDraw = false;
+	}
 }
 
 void HScrollBar::UnloadResources()

@@ -3,9 +3,13 @@
 
 #include "control.h"
 
+#define HSCROLLBAR_SELECT_TOGGLE_TIME		30
+
 class HScrollBar : public Control
 {
 	private:
+		bool selectedDraw;
+		int selectedTimer;
 		bool capture;
 
 		void LoadResources();

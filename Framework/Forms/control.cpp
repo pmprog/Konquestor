@@ -2,7 +2,7 @@
 #include "control.h"
 #include "forms.h"
 
-Control::Control(Control* Owner) : Name("Control"), owningControl(Owner), focusedChild(nullptr), BackgroundColour(al_map_rgb( 80, 80, 80 )), ForegroundColour(al_map_rgb(255, 255, 255)), mouseInside(false), mouseDepressed(false), controlArea(nullptr)
+Control::Control(Control* Owner) : Name("Control"), owningControl(Owner), focusedChild(nullptr), BackgroundColour(al_map_rgb( 80, 80, 80 )), ForegroundColour(al_map_rgb(255, 255, 255)), CanFocus(false), AllowTab(false), mouseInside(false), mouseDepressed(false), controlArea(nullptr)
 {
 	if( Owner != nullptr )
 	{
@@ -22,31 +22,23 @@ Control::~Control()
 	}
 }
 
-void Control::SetFocus(Control* Child)
-{
-	focusedChild = Child;
-}
-
-Control* Control::GetActiveControl()
-{
-	return focusedChild;
-}
-
 void Control::Focus()
 {
-	if( owningControl != nullptr )
+	Form* f = GetForm();
+	if( f != nullptr && this->CanFocus )
 	{
-		owningControl->SetFocus( this );
+		f->SetFocus( this );
 	}
 }
 
 bool Control::IsFocused()
 {
-	if( owningControl != nullptr )
+	Form* f = GetForm();
+	if( f != nullptr )
 	{
-		return (owningControl->GetActiveControl() == this);
+		return (f->GetActiveControl() == this);
 	}
-	return true;
+	return false;
 }
 
 void Control::ResolveLocation()
@@ -204,6 +196,20 @@ void Control::EventOccured( Event* e )
 	{
 		if( IsFocused() )
 		{
+			if( e->Data.Keyboard.KeyCode == ALLEGRO_KEY_TAB && !AllowTab )
+			{
+				if( (e->Data.Keyboard.Modifiers & ALLEGRO_KEYMOD_SHIFT) == ALLEGRO_KEYMOD_SHIFT )
+				{
+					this->GetForm()->FocusPrevious();
+					e->Handled = true;
+					return;
+				} else {
+					this->GetForm()->FocusNext();
+					e->Handled = true;
+					return;
+				}
+			}
+
 			newevent = new Event();
 			newevent->Type = EVENT_FORM_INTERACTION;
 			newevent->Data.Forms.RaisedBy = this;

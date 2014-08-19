@@ -288,10 +288,10 @@ void Framework::TranslateAllegroEvents()
 			case ALLEGRO_EVENT_MOUSE_AXES:
 				fwE = new Event();
 				fwE->Type = EVENT_MOUSE_MOVE;
-				fwE->Data.Mouse.X = e.mouse.x;
-				fwE->Data.Mouse.Y = e.mouse.y;
-				fwE->Data.Mouse.DeltaX = e.mouse.dx;
-				fwE->Data.Mouse.DeltaY = e.mouse.dy;
+				fwE->Data.Mouse.X = DISPLAY->ScreenXToGameX(e.mouse.x);
+				fwE->Data.Mouse.Y = DISPLAY->ScreenYToGameY(e.mouse.y);
+				fwE->Data.Mouse.DeltaX = DISPLAY->ScreenXToGameX(e.mouse.dx);
+				fwE->Data.Mouse.DeltaY = DISPLAY->ScreenYToGameY(e.mouse.dy);
 				fwE->Data.Mouse.WheelVertical = e.mouse.dz;
 				fwE->Data.Mouse.WheelHorizontal = e.mouse.dw;
 				fwE->Data.Mouse.Button = e.mouse.button;
@@ -300,10 +300,10 @@ void Framework::TranslateAllegroEvents()
 			case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
 				fwE = new Event();
 				fwE->Type = EVENT_MOUSE_DOWN;
-				fwE->Data.Mouse.X = e.mouse.x;
-				fwE->Data.Mouse.Y = e.mouse.y;
-				fwE->Data.Mouse.DeltaX = e.mouse.dx;
-				fwE->Data.Mouse.DeltaY = e.mouse.dy;
+				fwE->Data.Mouse.X = DISPLAY->ScreenXToGameX(e.mouse.x);
+				fwE->Data.Mouse.Y = DISPLAY->ScreenYToGameY(e.mouse.y);
+				fwE->Data.Mouse.DeltaX = DISPLAY->ScreenXToGameX(e.mouse.dx);
+				fwE->Data.Mouse.DeltaY = DISPLAY->ScreenYToGameY(e.mouse.dy);
 				fwE->Data.Mouse.WheelVertical = e.mouse.dz;
 				fwE->Data.Mouse.WheelHorizontal = e.mouse.dw;
 				fwE->Data.Mouse.Button = e.mouse.button;
@@ -312,10 +312,10 @@ void Framework::TranslateAllegroEvents()
 			case ALLEGRO_EVENT_MOUSE_BUTTON_UP:
 				fwE = new Event();
 				fwE->Type = EVENT_MOUSE_UP;
-				fwE->Data.Mouse.X = e.mouse.x;
-				fwE->Data.Mouse.Y = e.mouse.y;
-				fwE->Data.Mouse.DeltaX = e.mouse.dx;
-				fwE->Data.Mouse.DeltaY = e.mouse.dy;
+				fwE->Data.Mouse.X = DISPLAY->ScreenXToGameX(e.mouse.x);
+				fwE->Data.Mouse.Y = DISPLAY->ScreenYToGameY(e.mouse.y);
+				fwE->Data.Mouse.DeltaX = DISPLAY->ScreenXToGameX(e.mouse.dx);
+				fwE->Data.Mouse.DeltaY = DISPLAY->ScreenYToGameY(e.mouse.dy);
 				fwE->Data.Mouse.WheelVertical = e.mouse.dz;
 				fwE->Data.Mouse.WheelHorizontal = e.mouse.dw;
 				fwE->Data.Mouse.Button = e.mouse.button;

@@ -4,6 +4,7 @@
 
 TextButton::TextButton( Control* Owner, std::string Text, TTFFont* Font ) : Control( Owner ), text( Text ), font( Font ), TextHAlign( HorizontalAlignment::Centre ), TextVAlign( VerticalAlignment::Centre )
 {
+	CanFocus = true;
 }
 
 TextButton::~TextButton()
@@ -27,6 +28,18 @@ void TextButton::EventOccured( Event* e )
 		ce->Data.Forms.EventFlag = FormEventType::ButtonClick;
 		FRAMEWORK->PushEvent( ce );
 	}
+
+	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.RaisedBy == this && e->Data.Forms.EventFlag == FormEventType::KeyDown )
+	{
+		if( e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_SPACE || e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_ENTER )
+		{
+			Event* ce = new Event();
+			ce->Type = e->Type;
+			memcpy( (void*)&(ce->Data.Forms), (void*)&(e->Data.Forms), sizeof( FRAMEWORK_FORMS_EVENT ) );
+			ce->Data.Forms.EventFlag = FormEventType::ButtonClick;
+			FRAMEWORK->PushEvent( ce );
+		}
+	}
 }
 
 void TextButton::OnRender()
@@ -37,6 +50,11 @@ void TextButton::OnRender()
 	al_draw_line( 2,  Size.Y - 4, Size.X - 2, Size.Y - 4, al_map_rgb( 80, 80, 80 ), 1 );
 	al_draw_line( 2, Size.Y - 3, Size.X - 2, Size.Y - 3, al_map_rgb( 64, 64, 64 ), 1 );
 	al_draw_rectangle( 3, 3, Size.X - 2, Size.Y - 2, al_map_rgb( 48, 48, 48 ), 1 );
+
+	if( selectedDraw )
+	{
+		al_draw_rectangle( 1, 1, Size.X - 1, Size.Y - 1, al_map_rgb( 255, 255, 255 ), 2 );
+	}
 
 	if( mouseDepressed && mouseInside )
 	{
@@ -77,7 +95,16 @@ void TextButton::OnRender()
 
 void TextButton::Update()
 {
-	// No "updates"
+	if( IsFocused() )
+	{
+		selectedTimer = (selectedTimer + 1) % TEXTBUTTON_SELECT_TOGGLE_TIME;
+		if( selectedTimer == 0 )
+		{
+			selectedDraw = !selectedDraw;
+		}
+	} else {
+		selectedDraw = false;
+	}
 }
 
 void TextButton::UnloadResources()

@@ -3,6 +3,7 @@
 
 CheckBox::CheckBox( Control* Owner ) : Control( Owner ), Checked(false), imagechecked(nullptr), imageunchecked(nullptr)
 {
+	CanFocus = true;
 	LoadResources();
 }
 
@@ -32,6 +33,19 @@ void CheckBox::EventOccured( Event* e )
 		ce->Data.Forms.EventFlag = FormEventType::CheckBoxChange;
 		FRAMEWORK->PushEvent( ce );
 	}
+
+	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.RaisedBy == this && e->Data.Forms.EventFlag == FormEventType::KeyDown )
+	{
+		if( e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_SPACE || e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_ENTER )
+		{
+			Checked = !Checked;
+			Event* ce = new Event();
+			ce->Type = e->Type;
+			memcpy( (void*)&(ce->Data.Forms), (void*)&(e->Data.Forms), sizeof( FRAMEWORK_FORMS_EVENT ) );
+			ce->Data.Forms.EventFlag = FormEventType::CheckBoxChange;
+			FRAMEWORK->PushEvent( ce );
+		}
+	}
 }
 
 void CheckBox::OnRender()
@@ -55,8 +69,14 @@ void CheckBox::OnRender()
 	} else {
 		if( Size.X > 8 && Size.Y > 8 )
 		{
-			al_draw_filled_rectangle( 1, 1, Size.X - 2, Size.Y - 2, ForegroundColour );
-			al_draw_filled_rectangle( 2, 2, Size.X - 3, Size.Y - 3, al_map_rgb( 0, 0, 0 ) );
+			if( selectedDraw )
+			{
+				al_draw_filled_rectangle( 1, 1, Size.X - 2, Size.Y - 2, ForegroundColour );
+				al_draw_filled_rectangle( 2, 2, Size.X - 3, Size.Y - 3, al_map_rgb( 255, 255, 255 ) );
+			} else {
+				al_draw_filled_rectangle( 1, 1, Size.X - 2, Size.Y - 2, ForegroundColour );
+				al_draw_filled_rectangle( 2, 2, Size.X - 3, Size.Y - 3, al_map_rgb( 0, 0, 0 ) );
+			}
 			if( Checked )
 			{
 				al_draw_filled_rectangle( 4, 4, Size.X - 5, Size.Y - 5, ForegroundColour );
@@ -72,7 +92,16 @@ void CheckBox::OnRender()
 
 void CheckBox::Update()
 {
-	Control::Update();
+	if( IsFocused() )
+	{
+		selectedTimer = (selectedTimer + 1) % CHECKBOX_SELECT_TOGGLE_TIME;
+		if( selectedTimer == 0 )
+		{
+			selectedDraw = !selectedDraw;
+		}
+	} else {
+		selectedDraw = false;
+	}
 }
 
 void CheckBox::UnloadResources()

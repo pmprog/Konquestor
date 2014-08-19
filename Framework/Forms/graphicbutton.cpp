@@ -3,6 +3,7 @@
 
 GraphicButton::GraphicButton( Control* Owner, std::string Image, std::string ImageDepressed ) : Control( Owner )
 {
+	CanFocus = true;
 	image = nullptr;
 	imagedepressed = nullptr;
 	imagehover = nullptr;
@@ -13,6 +14,7 @@ GraphicButton::GraphicButton( Control* Owner, std::string Image, std::string Ima
 
 GraphicButton::GraphicButton( Control* Owner, std::string Image, std::string ImageDepressed, std::string ImageHover ) : Control( Owner )
 {
+	CanFocus = true;
 	image = nullptr;
 	imagedepressed = nullptr;
 	imagehover = nullptr;
@@ -41,6 +43,18 @@ void GraphicButton::EventOccured( Event* e )
 		memcpy( (void*)&(ce->Data.Forms), (void*)&(e->Data.Forms), sizeof( FRAMEWORK_FORMS_EVENT ) );
 		ce->Data.Forms.EventFlag = FormEventType::ButtonClick;
 		FRAMEWORK->PushEvent( ce );
+	}
+
+	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.RaisedBy == this && e->Data.Forms.EventFlag == FormEventType::KeyDown )
+	{
+		if( e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_SPACE || e->Data.Forms.KeyInfo.KeyCode == ALLEGRO_KEY_ENTER )
+		{
+			Event* ce = new Event();
+			ce->Type = e->Type;
+			memcpy( (void*)&(ce->Data.Forms), (void*)&(e->Data.Forms), sizeof( FRAMEWORK_FORMS_EVENT ) );
+			ce->Data.Forms.EventFlag = FormEventType::ButtonClick;
+			FRAMEWORK->PushEvent( ce );
+		}
 	}
 }
 
@@ -89,7 +103,7 @@ void GraphicButton::OnRender()
 	if( mouseDepressed )
 	{
 		useimage = imagedepressed;
-	} else if( mouseInside && imagehover != nullptr ) {
+	} else if( (mouseInside || IsFocused()) && imagehover != nullptr ) {
 		useimage = imagehover;
 	}
 
