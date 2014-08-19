@@ -34,3 +34,17 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+
+# Visual Studio
+*.user
+*.suo
+*.sdf
+[Bb]in/
+[Rr]elease/
+[Dd]ebug/
+
+# Framework stuff
+*.cfg
+allegro.log
+
