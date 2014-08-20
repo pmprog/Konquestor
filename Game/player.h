@@ -3,12 +3,16 @@
 
 #include "includes.h"
 
+#ifndef Game
+class Game;
+#endif
+
 struct PlayerType
 {
 	enum Type
 	{
 		LocalHuman,
-		NetworkHuman,
+		RemoteHuman,
 		LocalComputer,
 		RemoteComputer
 	};
@@ -21,5 +25,5 @@ class Player
 		std::string Name;
 		PlayerType::Type Interaction;
 		ALLEGRO_COLOR Colour;
-
+		Game* CurrentGame;
 };

@@ -5,10 +5,14 @@
 Game::Game( int Planets, std::vector<Player*> Players )
 {
 	menuFont = FontCache::LoadFont( "resources/game.ttf", 48 );
+	detailFont = FontCache::LoadFont( "resources/game.ttf", 24 );
+	selectSin = new Angle(0);
+	gridSelectX = 0;
+	gridSelectY = 0;
+
+	StopAI = false;
 
 	playerList = Players;
-	// TODO: Sync on netgame
-	currentPlayer = rand() % playerList.size();
 
 	for( int y = 0; y < MAP_HEIGHT; y++ )
 	{
@@ -31,9 +35,11 @@ Game::Game( int Planets, std::vector<Player*> Players )
 		planetList.push_back(galacticMap[ (py * MAP_WIDTH) + px ]);
 	}
 
+	bool hasremoteplayers = false;
 	for( auto pli = playerList.begin(); pli != playerList.end(); pli++ )
 	{
 		Player* pl = (Player*)*pli;
+		pl->CurrentGame = this;
 		int pi = rand() % planetList.size();
 		while( planetList.at( pi )->OwnedBy != nullptr )
 		{
@@ -43,13 +49,75 @@ Game::Game( int Planets, std::vector<Player*> Players )
 		planetList.at( pi )->DefenceStats = 0.7f;
 		planetList.at( pi )->ProductionRate = 3;
 		planetList.at( pi )->Ships = 10;
+
+		if( pl->Interaction == PlayerType::LocalComputer )
+		{
+			ALLEGRO_THREAD* ait = al_create_thread( &this->AIThread, (void*)pl );
+			AIThreads.push_back( ait );
+		}
+
+		if( pl->Interaction == PlayerType::RemoteComputer || pl->Interaction == PlayerType::RemoteHuman )
+		{
+			hasremoteplayers = true;
+		}
 	}
 
+	localInputForm = new Form();
+	localInputForm->Location.X = 20 + (MAP_GRIDSIZE * MAP_WIDTH);
+	localInputForm->Size.X = DISPLAY->GetWidth() - 10 - localInputForm->Location.X;
+	localInputForm->Location.Y = 10;
+	localInputForm->Size.Y = DISPLAY->GetHeight() - 20;
+
+	Label* l = new Label( localInputForm, "Test", detailFont );
+	l->Location.X = 0;
+	l->Location.Y = 0;
+	l->Size.X = 200;
+	l->Size.Y = 40;
+	
+	waitInputForm = new Form();
+	waitInputForm->Location.X = localInputForm->Location.X;
+	waitInputForm->Location.Y = localInputForm->Location.Y;
+	waitInputForm->Size.X = localInputForm->Size.X;
+	waitInputForm->Size.Y = localInputForm->Size.Y;
+
+	waitInputLabel = new Label( waitInputForm, "Please Wait", menuFont );
+	waitInputLabel->Location.X = 2;
+	waitInputLabel->Location.Y = 2;
+	waitInputLabel->Size.X = waitInputForm->Size.X - 4;
+	waitInputLabel->Size.Y = waitInputForm->Size.Y - 4;
+	waitInputLabel->TextHAlign = HorizontalAlignment::Centre;
+	waitInputLabel->TextVAlign = VerticalAlignment::Centre;
+
+	if( hasremoteplayers )
+	{
+		activeInputForm = waitInputForm;
+
+		// TODO: Sync on netgame
+	} else {
+		currentPlayer = rand() % playerList.size();
+		NextPlayer();
+	}
+
+	for( auto ti = AIThreads.begin(); ti != AIThreads.end(); ti++ )
+	{
+		ALLEGRO_THREAD* ait = (ALLEGRO_THREAD*)*ti;
+		al_start_thread( ait );
+	}
 }
 
 Game::~Game()
 {
+
+	while( AIThreads.size() > 0 )
+	{
+		ALLEGRO_THREAD* t = AIThreads.back();
+		AIThreads.pop_back();
+		al_destroy_thread( t );
+	}
+
 	FontCache::UnloadFont( menuFont );
+	FontCache::UnloadFont( detailFont );
+	delete selectSin;
 }
 
 void Game::Begin()
@@ -66,10 +134,13 @@ void Game::Resume()
 
 void Game::Finish()
 {
+	StopAI = true;
 }
 
 void Game::EventOccurred(Event *e)
 {
+	activeInputForm->EventOccured( e );
+
 	if( e->Type == EVENT_KEY_DOWN )
 	{
 		if( e->Data.Keyboard.KeyCode == ALLEGRO_KEY_ESCAPE )
@@ -83,6 +154,7 @@ void Game::EventOccurred(Event *e)
 
 void Game::Update()
 {
+	selectSin->Add( 360.0 / (float)FRAMEWORK->GetFramesPerSecond() );
 }
 
 void Game::Render()
@@ -99,31 +171,79 @@ void Game::Render()
 			{
 				if( p->OwnedBy != nullptr )
 				{
-					al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 24, p->OwnedBy->Colour );
+					al_draw_filled_circle( 40 + (x * MAP_GRIDSIZE), 40 + (y * MAP_GRIDSIZE), 22 + (int)(selectSin->Sine() * 3.0f), p->OwnedBy->Colour );
 				}
 
-				al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 20, p->PlanetColour );
-				al_draw_filled_circle( 40 + (x * 60), 40 + (y * 60), 20, al_map_rgba( 0, 0, 0, 128 ) );
-				al_draw_filled_circle( 38 + (x * 60), 38 + (y * 60), 16, p->PlanetColour );
+				al_draw_filled_circle( 40 + (x * MAP_GRIDSIZE), 40 + (y * MAP_GRIDSIZE), 20, p->PlanetColour );
+				al_draw_filled_circle( 40 + (x * MAP_GRIDSIZE), 40 + (y * MAP_GRIDSIZE), 20, al_map_rgba( 0, 0, 0, 128 ) );
+				al_draw_filled_circle( 38 + (x * MAP_GRIDSIZE), 38 + (y * MAP_GRIDSIZE), 16, p->PlanetColour );
 
-				menuFont->DrawString( 16 + (x * 60), 10 + (y * 60), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 0, 0, 0 ) );
-				menuFont->DrawString( 14 + (x * 60),  8 + (y * 60), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 255, 255, 255 ) );
+				menuFont->DrawString( 16 + (x * MAP_GRIDSIZE), 10 + (y * MAP_GRIDSIZE), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 0, 0, 0 ) );
+				menuFont->DrawString( 14 + (x * MAP_GRIDSIZE),  8 + (y * MAP_GRIDSIZE), Strings::FromNumber( pidx ), FontHAlign::LEFT, al_map_rgb( 255, 255, 255 ) );
 				pidx++;
 			}
 
-			al_draw_line( 10 + (x * 60), 10 + (y * 60), 10 + ((x + 1) * 60), 10 + (y * 60), al_map_rgb( 255, 255, 255 ), 1 );
-			al_draw_line( 10 + (x * 60), 10 + (y * 60), 10 + (x * 60), 10 + ((y + 1) * 60), al_map_rgb( 255, 255, 255 ), 1 );
+			al_draw_line( 10 + (x * MAP_GRIDSIZE), 10 + (y * MAP_GRIDSIZE), 10 + ((x + 1) * MAP_GRIDSIZE), 10 + (y * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
+			al_draw_line( 10 + (x * MAP_GRIDSIZE), 10 + (y * MAP_GRIDSIZE), 10 + (x * MAP_GRIDSIZE), 10 + ((y + 1) * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
 
 		}
 	}
 
-	al_draw_line( 10, 10 + (MAP_HEIGHT * 60), 10 + (MAP_WIDTH * 60), 10 + (MAP_HEIGHT * 60), al_map_rgb( 255, 255, 255 ), 1 );
-	al_draw_line( 10 + (MAP_WIDTH * 60), 10, 10 + (MAP_WIDTH * 60), 10 + (MAP_HEIGHT * 60), al_map_rgb( 255, 255, 255 ), 1 );
+	al_draw_line( 10, 10 + (MAP_HEIGHT * MAP_GRIDSIZE), 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10 + (MAP_HEIGHT * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
+	al_draw_line( 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10, 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10 + (MAP_HEIGHT * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
 
+	al_draw_rectangle( 10 + (gridSelectX * MAP_GRIDSIZE), 10 + (gridSelectY * MAP_GRIDSIZE), 10 + ((gridSelectX+1) * MAP_GRIDSIZE), 10 + ((gridSelectY+1) * MAP_GRIDSIZE), al_map_rgba_f( 1.0f, 1.0f, 0.0f, (selectSin->Cosine() + 1.0f) / 2.0f ), 3 );
 
+	std::string curplayer = playerList.at(currentPlayer)->Name;
+	curplayer.append( "'s Turn");
+	menuFont->DrawString( 10, DISPLAY->GetHeight() - menuFont->GetFontHeight() - 6, curplayer, FontHAlign::LEFT, al_map_rgb( 255, 255, 255 ) );
+
+	activeInputForm->Render();
 }
 
 bool Game::IsTransition()
 {
 	return false;
+}
+
+void Game::NextPlayer()
+{
+	currentPlayer = (currentPlayer + 1) % playerList.size();
+
+	Player* p = playerList.at(currentPlayer);
+	switch( p->Interaction )
+	{
+		case PlayerType::LocalHuman:
+			activeInputForm = localInputForm;
+			break;
+		case PlayerType::LocalComputer:
+			waitInputLabel->SetText("Waiting for AI");
+			activeInputForm = waitInputForm;
+			break;
+		case PlayerType::RemoteHuman:
+		case PlayerType::RemoteComputer:
+			waitInputLabel->SetText("Waiting for Network");
+			activeInputForm = waitInputForm;
+			break;
+	}
+	activeInputForm->BackgroundColour = p->Colour;
+}
+
+Player* Game::GetCurrentPlayer()
+{
+	return playerList.at(currentPlayer);
+}
+
+void* Game::AIThread(ALLEGRO_THREAD* Thread, void* PlayerPtr)
+{
+	Player* me = (Player*)PlayerPtr;
+
+	while( !me->CurrentGame->StopAI )
+	{
+		if( me->CurrentGame->GetCurrentPlayer() == me )
+		{
+			// TODO: Process AI
+		}
+	}
+	return nullptr;
 }
