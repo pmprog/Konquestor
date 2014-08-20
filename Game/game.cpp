@@ -148,12 +148,14 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	yPos += l->Size.Y + 2;
 
 	localPlanetLaunch = new TextButton( c, "Launch", menuFont );
+	localPlanetLaunch->BackgroundColour.a = 0.0f;
 	localPlanetLaunch->Location.X = 2;
 	localPlanetLaunch->Location.Y = yPos;
 	localPlanetLaunch->Size.X = c->Size.X - 4;
 	localPlanetLaunch->Size.Y = menuFont->GetFontHeight() + 4;
 
 	localPlanetEndTurn = new TextButton( localInputForm, "End Turn", menuFont );
+	localPlanetEndTurn->BackgroundColour.a = 0.0f;
 	localPlanetEndTurn->Size.X = localInputForm->Size.X - 4;
 	localPlanetEndTurn->Size.Y = menuFont->GetFontHeight() + 4;
 	localPlanetEndTurn->Location.X = 2;
@@ -180,6 +182,7 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	waitInputLabel->TextHAlign = HorizontalAlignment::Centre;
 	waitInputLabel->TextVAlign = VerticalAlignment::Centre;
 
+	TurnNumber = 1;
 	if( hasremoteplayers )
 	{
 		activeInputForm = waitInputForm;
@@ -187,6 +190,7 @@ Game::Game( int Planets, std::vector<Player*> Players )
 		// TODO: Sync on netgame
 	} else {
 		currentPlayer = rand() % playerList.size();
+		turnChangesAtPlayer = currentPlayer;
 		NextPlayer();
 	}
 
@@ -214,6 +218,8 @@ Game::~Game()
 
 void Game::Begin()
 {
+	AUDIO->StopMusic();
+	AUDIO->PlayMusic( "resources/ingame.ogg", true );
 }
 
 void Game::Pause()
@@ -226,6 +232,7 @@ void Game::Resume()
 
 void Game::Finish()
 {
+	AUDIO->StopMusic();
 	StopAI = true;
 }
 
@@ -233,7 +240,7 @@ void Game::EventOccurred(Event *e)
 {
 	activeInputForm->EventOccured( e );
 
-	if( e->Type == EVENT_KEY_DOWN )
+	if( e->Type == EVENT_KEY_PRESS )
 	{
 		if( e->Data.Keyboard.KeyCode == ALLEGRO_KEY_ESCAPE )
 		{
@@ -275,6 +282,7 @@ void Game::EventOccurred(Event *e)
 void Game::Update()
 {
 	selectSin->Add( 360.0 / (float)FRAMEWORK->GetFramesPerSecond() );
+	activeInputForm->Update();
 }
 
 void Game::Render()
@@ -329,6 +337,11 @@ bool Game::IsTransition()
 void Game::NextPlayer()
 {
 	currentPlayer = (currentPlayer + 1) % playerList.size();
+
+	if( turnChangesAtPlayer == currentPlayer )
+	{
+		TurnNumber++;
+	}
 
 	Player* p = playerList.at(currentPlayer);
 	switch( p->Interaction )

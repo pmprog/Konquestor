@@ -47,6 +47,8 @@ Audio::Audio()
 		audioMixer = 0;
 		return;
 	}
+
+	musicStream = nullptr;
 }
 
 Audio::~Audio()
@@ -72,20 +74,35 @@ ALLEGRO_EVENT_SOURCE* Audio::GetEventSource()
 	return al_get_audio_event_source();
 }
 
-void Audio::PlayAudio( std::string Filename, bool Loop )
+void Audio::PlayMusic( std::string Filename, bool Loop )
 {
 	if( audioVoice == 0 || audioMixer == 0 )
 	{
 		return;
 	}
 
+	if( musicStream != nullptr )
+	{
+		StopMusic();
+	}
+
 #ifdef WRITE_LOG
 	printf( "Framework: Start audio file %s\n", Filename.c_str() );
 #endif
-
+	musicStream = al_load_audio_stream( Filename.c_str(), 4, 2048 );
+	if( musicStream != nullptr )
+	{
+		al_attach_audio_stream_to_mixer( musicStream, audioMixer );
+		al_set_audio_stream_playmode( musicStream, ( Loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE ) );
+		al_set_audio_stream_playing( musicStream, true );
+	} else {
+#ifdef WRITE_LOG
+		printf( "Framework: Could not load music '%s'\n", Filename.c_str() );
+#endif
+	}
 }
 
-void Audio::StopAudio()
+void Audio::StopMusic()
 {
 	if( audioVoice == 0 || audioMixer == 0 )
 	{
@@ -95,9 +112,22 @@ void Audio::StopAudio()
 #ifdef WRITE_LOG
   printf( "Framework: Stop audio\n" );
 #endif
+	if( musicStream != nullptr )
+	{
+		al_set_audio_stream_playing( musicStream, false );
+		al_detach_audio_stream( musicStream );
+		// Causes game to hang!?
+		// al_destroy_audio_stream( musicStream );
+		musicStream = nullptr;
+	}
 }
 
 ALLEGRO_MIXER* Audio::GetMixer()
 {
 	return audioMixer;
+}
+
+void Audio::PlaySoundEffect( std::string Filename )
+{
+	al_play_sample( SoundEffectsCache::LoadSFX( Filename ), 1.0f, 0.0f, 1.0f, ALLEGRO_PLAYMODE_ONCE, nullptr );
 }

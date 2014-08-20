@@ -7,6 +7,10 @@
 class Game;
 #endif
 
+#ifndef Planet
+class Planet;
+#endif
+
 struct PlayerType
 {
 	enum Type
@@ -16,6 +20,14 @@ struct PlayerType
 		LocalComputer,
 		RemoteComputer
 	};
+};
+
+class PlayerTransit
+{
+	public:
+		int Ships;
+		Planet* Target;
+		int ArrivesOnTurn;
 };
 
 class Player

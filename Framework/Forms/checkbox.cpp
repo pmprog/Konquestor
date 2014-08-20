@@ -79,7 +79,7 @@ void CheckBox::OnRender()
 			}
 			if( Checked )
 			{
-				al_draw_filled_rectangle( 4, 4, Size.X - 5, Size.Y - 5, ForegroundColour );
+				al_draw_filled_rectangle( 6, 6, Size.X - 7, Size.Y - 7, ForegroundColour );
 			}
 		} else {
 			if( Checked )

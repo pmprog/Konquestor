@@ -18,6 +18,7 @@ Menu::~Menu()
 
 void Menu::Begin()
 {
+	AUDIO->PlayMusic( "resources/title.ogg", true );
 }
 
 void Menu::Pause()
@@ -26,10 +27,12 @@ void Menu::Pause()
 
 void Menu::Resume()
 {
+	AUDIO->PlayMusic( "resources/title.ogg", true );
 }
 
 void Menu::Finish()
 {
+	AUDIO->StopMusic();
 }
 
 void Menu::EventOccurred(Event *e)

@@ -17,6 +17,7 @@ class Game : public Stage
 		TTFFont* detailFont;
 		std::vector<Player*> playerList;
 		int currentPlayer;
+		int turnChangesAtPlayer;
 
 		Planet* galacticMap[ MAP_WIDTH * MAP_HEIGHT ];
 		std::vector<Planet*> planetList;
@@ -42,6 +43,7 @@ class Game : public Stage
 		Form* activeInputForm;
 
   public:
+		int TurnNumber;
 		bool StopAI;
 
 		Game( int Planets, std::vector<Player*> Players );

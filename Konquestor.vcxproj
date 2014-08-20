@@ -112,6 +112,7 @@
     <ClCompile Include="Framework\Primitives\line.cpp" />
     <ClCompile Include="Framework\Primitives\vector2.cpp" />
     <ClCompile Include="Framework\Sound\audio.cpp" />
+    <ClCompile Include="Framework\Sound\sfxcache.cpp" />
     <ClCompile Include="Framework\Stages\stagestack.cpp" />
     <ClCompile Include="Framework\Transitions\fadeacross.cpp" />
     <ClCompile Include="Framework\Transitions\fadein.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Framework\Primitives\strings.h" />
     <ClInclude Include="Framework\Primitives\vector2.h" />
     <ClInclude Include="Framework\Sound\audio.h" />
+    <ClInclude Include="Framework\Sound\sfxcache.h" />
     <ClInclude Include="Framework\Stages\stage.h" />
     <ClInclude Include="Framework\Stages\stagestack.h" />
     <ClInclude Include="Framework\Transitions\fadeacross.h" />

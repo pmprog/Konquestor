@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../includes.h"
+#include "sfxcache.h"
 
 #define AUDIO	Audio::CurrentAudio
 
@@ -12,6 +13,8 @@ class Audio
 		ALLEGRO_MIXER* audioMixer;
 		ALLEGRO_VOICE* audioVoice;
 
+		ALLEGRO_AUDIO_STREAM* musicStream;
+
 	public:
 		static Audio* CurrentAudio;
 
@@ -20,8 +23,10 @@ class Audio
 
 		ALLEGRO_EVENT_SOURCE* GetEventSource();
 
-    void PlayAudio( std::string Filename, bool Loop );
-    void StopAudio();
+    void PlayMusic( std::string Filename, bool Loop );
+    void StopMusic();
+
+		void PlaySoundEffect( std::string Filename );
 
 		ALLEGRO_MIXER* GetMixer();
 };
