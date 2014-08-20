@@ -29,6 +29,14 @@ class Game : public Stage
 		std::vector<ALLEGRO_THREAD*> AIThreads;
 
 		Form* localInputForm;
+		Label* localPlanetTitle;
+		Label* localPlanetShips;
+		Label* localPlanetProduction;
+		Label* localPlanetDefence;
+		ListBox* localPlanetInFlightList;
+		TextButton* localPlanetLaunch;
+		TextButton* localPlanetEndTurn;
+
 		Form* waitInputForm;
 		Label* waitInputLabel;
 		Form* activeInputForm;
