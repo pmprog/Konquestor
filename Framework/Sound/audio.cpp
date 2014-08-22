@@ -1,5 +1,6 @@
 
 #include "audio.h"
+#include "../framework.h"
 
 Audio* Audio::CurrentAudio = nullptr;
 
@@ -69,11 +70,6 @@ Audio::~Audio()
 	al_uninstall_audio();
 }
 
-ALLEGRO_EVENT_SOURCE* Audio::GetEventSource()
-{
-	return al_get_audio_event_source();
-}
-
 void Audio::PlayMusic( std::string Filename, bool Loop )
 {
 	if( audioVoice == 0 || audioMixer == 0 )
@@ -94,6 +90,7 @@ void Audio::PlayMusic( std::string Filename, bool Loop )
 	{
 		al_attach_audio_stream_to_mixer( musicStream, audioMixer );
 		al_set_audio_stream_playmode( musicStream, ( Loop ? ALLEGRO_PLAYMODE_LOOP : ALLEGRO_PLAYMODE_ONCE ) );
+		FRAMEWORK->RegisterEventSource( al_get_audio_stream_event_source( musicStream ) );
 		al_set_audio_stream_playing( musicStream, true );
 	} else {
 #ifdef WRITE_LOG
@@ -114,6 +111,7 @@ void Audio::StopMusic()
 #endif
 	if( musicStream != nullptr )
 	{
+		FRAMEWORK->UnregisterEventSource( al_get_audio_stream_event_source( musicStream ) );
 		al_set_audio_stream_playing( musicStream, false );
 		al_detach_audio_stream( musicStream );
 		// Causes game to hang!?

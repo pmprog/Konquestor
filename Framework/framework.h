@@ -58,4 +58,7 @@ class Framework
 		bool IsSlowMode();
 		void SetSlowMode(bool SlowEnabled);
 		int GetFramesPerSecond();
+
+		void RegisterEventSource( ALLEGRO_EVENT_SOURCE* Source );
+		void UnregisterEventSource( ALLEGRO_EVENT_SOURCE* Source );
 };

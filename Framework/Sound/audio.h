@@ -21,8 +21,6 @@ class Audio
     Audio();
     ~Audio();
 
-		ALLEGRO_EVENT_SOURCE* GetEventSource();
-
     void PlayMusic( std::string Filename, bool Loop );
     void StopMusic();
 

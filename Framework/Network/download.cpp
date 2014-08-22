@@ -53,7 +53,7 @@ void DownloadManager::EventOccured( Event* e )
 			}
 		}
 #ifdef WRITE_LOG
-		printf( "DownloadManager: Completed '%s' (Queue Length: %d, Download Count: %d)\n", CompareURL.c_str(), urlList.size(), urlDownloading.size() );
+		printf( "DownloadManager: Completed '%s' (Queue Length: %d, Download Count: %d)\n", e->Data.Download.URL.c_str(), urlList.size(), urlDownloading.size() );
 #endif
 	}
 }

@@ -78,11 +78,10 @@ Framework::Framework( int Width, int Height, int Framerate, bool DropFrames )
 #ifdef WRITE_LOG
 	printf( "Framework: Startup: Register event sources\n" );
 #endif
-	al_register_event_source( eventAllegro, DISPLAY->GetEventSource() );
-	al_register_event_source( eventAllegro, AUDIO->GetEventSource() );
-	al_register_event_source( eventAllegro, al_get_keyboard_event_source() );
-	al_register_event_source( eventAllegro, al_get_mouse_event_source() );
-	al_register_event_source( eventAllegro, al_get_timer_event_source( frameTimer ) );
+	RegisterEventSource( DISPLAY->GetEventSource() );
+	RegisterEventSource( al_get_keyboard_event_source() );
+	RegisterEventSource( al_get_mouse_event_source() );
+	RegisterEventSource( al_get_timer_event_source( frameTimer ) );
 
 	System = this;
 }
@@ -396,4 +395,20 @@ void Framework::SetSlowMode(bool SlowEnabled)
 int Framework::GetFramesPerSecond()
 {
 	return framesPerSecond;
+}
+
+void Framework::RegisterEventSource( ALLEGRO_EVENT_SOURCE* Source )
+{
+	if( Source != nullptr )
+	{
+		al_register_event_source( eventAllegro, Source );
+	}
+}
+
+void Framework::UnregisterEventSource( ALLEGRO_EVENT_SOURCE* Source )
+{
+	if( Source != nullptr )
+	{
+		al_unregister_event_source( eventAllegro, Source );
+	}
 }

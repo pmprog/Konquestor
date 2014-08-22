@@ -4,7 +4,7 @@
 #include "../includes.h"
 #include "../framework.h"
 #include "bitmapcache.h"
-#include "../primitives/angle.h"
+#include "../Primitives/angle.h"
 
 typedef struct SpriteSheetRegion
 {
