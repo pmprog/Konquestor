@@ -148,6 +148,7 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	yPos += l->Size.Y + 2;
 
 	localPlanetLaunch = new TextButton( c, "Launch", menuFont );
+	localPlanetLaunch->Name = "BTN_LAUNCH";
 	localPlanetLaunch->BackgroundColour.a = 0.0f;
 	localPlanetLaunch->Location.X = 2;
 	localPlanetLaunch->Location.Y = yPos;
@@ -155,6 +156,7 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	localPlanetLaunch->Size.Y = menuFont->GetFontHeight() + 4;
 
 	localPlanetEndTurn = new TextButton( localInputForm, "End Turn", menuFont );
+	localPlanetEndTurn->Name = "BTN_ENDTURN";
 	localPlanetEndTurn->BackgroundColour.a = 0.0f;
 	localPlanetEndTurn->Size.X = localInputForm->Size.X - 4;
 	localPlanetEndTurn->Size.Y = menuFont->GetFontHeight() + 4;
@@ -277,6 +279,23 @@ void Game::EventOccurred(Event *e)
 		}
 	}
 
+	if( e->Type == EVENT_MOUSE_DOWN )
+	{
+		if( e->Data.Mouse.X >= 10 && e->Data.Mouse.X < 10 + (MAP_WIDTH * MAP_GRIDSIZE) && e->Data.Mouse.Y >= 10 && e->Data.Mouse.Y < 10 + (MAP_HEIGHT * MAP_GRIDSIZE) )
+		{
+			gridSelectX = ( e->Data.Mouse.X - 10 ) / MAP_GRIDSIZE;
+			gridSelectY = ( e->Data.Mouse.Y - 10 ) / MAP_GRIDSIZE;
+		}
+	}
+
+	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.EventFlag == FormEventType::ButtonClick )
+	{
+		if( e->Data.Forms.RaisedBy == localPlanetEndTurn )
+		{
+			NextPlayer();
+		}
+	}
+
 }
 
 void Game::Update()
@@ -375,7 +394,11 @@ void* Game::AIThread(ALLEGRO_THREAD* Thread, void* PlayerPtr)
 	{
 		if( me->CurrentGame->GetCurrentPlayer() == me )
 		{
+			for( int i = 1; i < 9900000; i++)
+			{
+			}
 			// TODO: Process AI
+			me->CurrentGame->NextPlayer();
 		}
 	}
 	return nullptr;
