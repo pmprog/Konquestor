@@ -24,4 +24,7 @@ class Planet
 			DefenceStats = ((rand() % 4) / 10.0f) + 0.4f;
 		};
 
+		// Combat Calculations
+		//  Attacking Ships: Min( Attacking, Max( 0, Attacking - (Defending * (1 + (Defence% / 3))) ) )
+		//  Defending Ships: Min( Defending, Max( 0, (Defending * (1 + (Defence% / 3))) - Attacking ) )
 };
