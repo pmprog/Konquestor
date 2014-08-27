@@ -41,4 +41,18 @@ class Maths
 		{
 			return ( a < 0.0 ? a * -1 : a );
 		};
+
+		static int Ceiling( float a )
+		{
+			if( a > (int)a )
+			{
+				return (int)a + 1;
+			}
+			return (int)a;
+		};
+
+		static int Floor( float a )
+		{
+			return (int)a;
+		};
 };

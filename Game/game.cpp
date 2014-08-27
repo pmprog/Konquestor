@@ -36,6 +36,8 @@ Game::Game( int Planets, std::vector<Player*> Players )
 		}
 		galacticMap[ (py * MAP_WIDTH) + px ] = new Planet();
 		galacticMap[ (py * MAP_WIDTH) + px ]->GenerateName( pi );
+		galacticMap[ (py * MAP_WIDTH) + px ]->GridX = px;
+		galacticMap[ (py * MAP_WIDTH) + px ]->GridY = py;
 		planetList.push_back(galacticMap[ (py * MAP_WIDTH) + px ]);
 	}
 
@@ -79,12 +81,6 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	localTransfersButton->Location.X = localInfoButton->Size.X;
 	localTransfersButton->Location.Y = 0;
 
-	localPlanetInfo = new PlanetControl( localInputForm , menuFont );
-	localPlanetInfo->Location.X = 2;
-	localPlanetInfo->Location.Y = localInfoButton->Size.Y + 2;
-	localPlanetInfo->Size.X = localInputForm->Size.X - 4;
-	localPlanetInfo->BackgroundColour.a = 0.0f;
-
 	localPlanetEndTurn = new TextButton( localInputForm, "End Turn", menuFont );
 	localPlanetEndTurn->Name = "BTN_ENDTURN";
 	localPlanetEndTurn->BackgroundColour.a = 0.0f;
@@ -93,11 +89,47 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	localPlanetEndTurn->Location.X = 2;
 	localPlanetEndTurn->Location.Y = localInputForm->Size.Y - localPlanetEndTurn->Size.Y;
 
-	localPlanetInFlightList = new ListBox( localInputForm );
+	localInfoTab = new Control( localInputForm );
+	localInfoTab->BackgroundColour = al_map_rgba( 0, 0, 0, 128 );
+	localInfoTab->Location.X = 2;
+	localInfoTab->Location.Y = localTransfersButton->Size.Y + 2;
+	localInfoTab->Size.X = localInputForm->Size.X - 4;
+	localInfoTab->Size.Y = localPlanetEndTurn->Location.Y - 2 - localInfoTab->Location.Y;
+
+	localTransferTab = new Control( localInputForm );
+	localTransferTab->BackgroundColour = al_map_rgba( 0, 0, 0, 128 );
+	localTransferTab->Location.X = 2000;
+	localTransferTab->Location.Y = localTransfersButton->Size.Y + 2;
+	localTransferTab->Size.X = localInputForm->Size.X - 4;
+	localTransferTab->Size.Y = localPlanetEndTurn->Location.Y - 2 - localTransferTab->Location.Y;
+
+
+
+	localPlanetInfoSource = new PlanetControl( localInfoTab , menuFont, false );
+	localPlanetInfoSource->BackgroundColour.a = 0.0f;
+	localPlanetInfoSource->Location.X = 2;
+	localPlanetInfoSource->Location.Y = 2;
+	localPlanetInfoSource->Size.X = localInfoTab->Size.X - 4;
+
+	localPlanetLaunch = new TextButton( localInfoTab, "Launch", menuFont );
+	localPlanetLaunch->Location.X = 2000;
+	localPlanetLaunch->Location.Y = localPlanetInfoSource->Size.Y + 4;
+	localPlanetLaunch->Size.X = localInfoTab->Size.X - 4;
+	localPlanetLaunch->Size.Y = menuFont->GetFontHeight() + 6;
+
+	localPlanetInfoTarget = new PlanetControl( localInfoTab , menuFont, true );
+	localPlanetInfoTarget->BackgroundColour.a = 0.0f;
+	localPlanetInfoTarget->Location.X = 2000;
+	localPlanetInfoTarget->Location.Y = localPlanetInfoSource->Size.Y + 4;
+	localPlanetInfoTarget->Size.X = localInfoTab->Size.X - 4;
+
+
+
+	localPlanetInFlightList = new ListBox( localTransferTab );
 	localPlanetInFlightList->Location.X = 2;
-	localPlanetInFlightList->Location.Y = localPlanetInfo->Location.Y + localPlanetInfo->Size.Y + 2;
-	localPlanetInFlightList->Size.X = localPlanetInfo->Size.X;
-	localPlanetInFlightList->Size.Y = localPlanetEndTurn->Location.Y - localPlanetInFlightList->Location.Y - 4;
+	localPlanetInFlightList->Location.Y = 2;
+	localPlanetInFlightList->Size.X = localTransferTab->Size.X - 4;
+	localPlanetInFlightList->Size.Y = localTransferTab->Size.Y - 4;
 
 
 	waitInputForm = new Form();
@@ -180,6 +212,7 @@ void Game::EventOccurred(Event *e)
 			{
 				gridSourceX = -1;
 				gridSourceY = -1;
+				DisplaySelectedPlanetInfo();
 			} else {
 				delete FRAMEWORK->ProgramStages->Pop();
 				return;
@@ -235,10 +268,21 @@ void Game::EventOccurred(Event *e)
 		{
 			NextPlayer();
 		}
+		if( e->Data.Forms.RaisedBy == localInfoButton )
+		{
+			localInfoTab->Location.X = 2;
+			localTransferTab->Location.X = 2000;
+		}
+		if( e->Data.Forms.RaisedBy == localTransfersButton )
+		{
+			localInfoTab->Location.X = 2000;
+			localTransferTab->Location.X = 2;
+		}
 		if( e->Data.Forms.RaisedBy == localPlanetLaunch )
 		{
 			gridSourceX = gridSelectX;
 			gridSourceY = gridSelectY;
+			DisplaySelectedPlanetInfo();
 		}
 	}
 
@@ -285,11 +329,11 @@ void Game::Render()
 	al_draw_line( 10, 10 + (MAP_HEIGHT * MAP_GRIDSIZE), 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10 + (MAP_HEIGHT * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
 	al_draw_line( 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10, 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10 + (MAP_HEIGHT * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
 
-	al_draw_rectangle( 10 + (gridSelectX * MAP_GRIDSIZE), 10 + (gridSelectY * MAP_GRIDSIZE), 10 + ((gridSelectX+1) * MAP_GRIDSIZE), 10 + ((gridSelectY+1) * MAP_GRIDSIZE), al_map_rgba_f( 1.0f, 1.0f, 0.0f, ((selectSin->Cosine() + 1.0f) / 4.0f) + 0.5f ), 3 );
 	if( gridSourceX >= 0 && gridSourceY >= 0 )
 	{
-		al_draw_rectangle( 10 + (gridSourceX * MAP_GRIDSIZE), 10 + (gridSourceY * MAP_GRIDSIZE), 10 + ((gridSourceX+1) * MAP_GRIDSIZE), 10 + ((gridSourceY+1) * MAP_GRIDSIZE), al_map_rgba_f( 0.0f, 0.4f, 1.0f, ((selectSin->Cosine() + 1.0f) / 4.0f) + 0.5f ), 3 );
+		al_draw_rectangle( 10 + (gridSourceX * MAP_GRIDSIZE), 10 + (gridSourceY * MAP_GRIDSIZE), 10 + ((gridSourceX+1) * MAP_GRIDSIZE), 10 + ((gridSourceY+1) * MAP_GRIDSIZE), al_map_rgba_f( 0.0f, 0.4f, 1.0f, ((selectSin->Sine() + 1.0f) / 4.0f) + 0.5f ), 3 );
 	}
+	al_draw_rectangle( 10 + (gridSelectX * MAP_GRIDSIZE), 10 + (gridSelectY * MAP_GRIDSIZE), 10 + ((gridSelectX+1) * MAP_GRIDSIZE), 10 + ((gridSelectY+1) * MAP_GRIDSIZE), al_map_rgba_f( 1.0f, 1.0f, 0.0f, ((selectSin->Cosine() + 1.0f) / 4.0f) + 0.5f ), 3 );
 
 	std::string curplayer = playerList.at(currentPlayer)->Name;
 	curplayer.append( "'s Turn");
@@ -305,6 +349,10 @@ bool Game::IsTransition()
 
 void Game::NextPlayer()
 {
+	gridSourceX = -1;
+	gridSourceY = -1;
+	DisplaySelectedPlanetInfo();
+
 	currentPlayer = (currentPlayer + 1) % playerList.size();
 
 	if( turnChangesAtPlayer == currentPlayer )
@@ -314,11 +362,21 @@ void Game::NextPlayer()
 
 	Player* p = playerList.at(currentPlayer);
 
+	for( auto pi = planetList.begin(); pi != planetList.end(); pi++ )
+	{
+		Planet* pl = (Planet*)*pi;
+		if( pl->OwnedBy == p )
+		{
+			pl->Ships += pl->ProductionRate;
+		}
+	}
+
 	switch( p->Interaction )
 	{
 		case PlayerType::LocalHuman:
 			activeInputForm = localInputForm;
-			localPlanetInfo->SetPlayer( p );
+			localPlanetInfoSource->SetPlayer( p );
+			localPlanetInfoTarget->SetPlayer( p );
 			break;
 		case PlayerType::LocalComputer:
 			waitInputLabel->SetText("Waiting for AI");
@@ -346,7 +404,7 @@ void* Game::AIThread(ALLEGRO_THREAD* Thread, void* PlayerPtr)
 	{
 		if( me->CurrentGame->GetCurrentPlayer() == me )
 		{
-			for( int i = 1; i < 9900000; i++)
+			for( int i = 1; i < 99000000; i++)
 			{
 			}
 			// TODO: Process AI
@@ -358,5 +416,31 @@ void* Game::AIThread(ALLEGRO_THREAD* Thread, void* PlayerPtr)
 
 void Game::DisplaySelectedPlanetInfo()
 {
-	localPlanetInfo->SetPlanet( galacticMap[ (gridSelectY * MAP_WIDTH) + gridSelectX ] );
+	Planet* p = galacticMap[ (gridSelectY * MAP_WIDTH) + gridSelectX ];
+
+	if( gridSourceX < 0 )
+	{
+		localPlanetInfoSource->SetPlanet( p );
+	} else {
+		localPlanetInfoTarget->SetPlanet( p );
+		localPlanetInfoTarget->SetTarget( galacticMap[ (gridSourceY * MAP_WIDTH) + gridSourceX ] );
+	}
+
+	if( p == nullptr )
+	{
+		localPlanetLaunch->Location.X = 2000;
+		localPlanetInfoTarget->Location.X = 2000;
+	} else if( gridSourceX >= 0 ) {
+		localPlanetLaunch->Location.X = 2000;
+		localPlanetInfoTarget->Location.X = 2;
+	} else {
+		localPlanetInfoTarget->Location.X = 2000;
+		if( p->OwnedBy != GetCurrentPlayer() )
+		{
+			localPlanetLaunch->Location.X = 2000;
+		} else {
+			localPlanetLaunch->Location.X = 2;
+		}
+	}
+
 }

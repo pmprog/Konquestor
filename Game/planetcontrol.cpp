@@ -1,7 +1,7 @@
 
 #include "planetcontrol.h"
 
-PlanetControl::PlanetControl( Control* Owner, TTFFont* Font ) : Control( Owner ), viewingPlanet( nullptr ), viewingAs( nullptr ), lastSize(-1, -1)
+PlanetControl::PlanetControl( Control* Owner, TTFFont* Font, bool ShowTurns ) : Control( Owner ), viewingPlanet( nullptr ), targetPlanet( nullptr ), viewingAs( nullptr ), lastSize(-1, -1)
 {
 	localPlanetTitle = new Label( this, "No Planet", Font );
 	localPlanetTitle->BackgroundColour.a = 0.5f;
@@ -62,7 +62,31 @@ PlanetControl::PlanetControl( Control* Owner, TTFFont* Font ) : Control( Owner )
 	localPlanetDefence->TextVAlign = VerticalAlignment::Centre;
 	localPlanetDefence->TextHAlign = HorizontalAlignment::Centre;
 
-	Size.Y = yPos + localPlanetProductionLabel->Size.Y + 2;
+	if( ShowTurns )
+	{
+		yPos += localPlanetDefence->Size.Y + 2;
+
+		localPlanetTargetTurnsLabel = new Label( this, "Turns:", Font );
+		localPlanetTargetTurnsLabel->BackgroundColour.a = 0.0f;
+		localPlanetTargetTurnsLabel->Location.X = 2;
+		localPlanetTargetTurnsLabel->Location.Y = yPos;
+		localPlanetTargetTurnsLabel->Size.Y = Font->GetFontHeight() + 4;
+		localPlanetTargetTurnsLabel->TextVAlign = VerticalAlignment::Centre;
+
+		localPlanetTargetTurns = new Label( this, "N/A", Font );
+		localPlanetTargetTurns->BackgroundColour.a = 0.0f;
+		localPlanetTargetTurns->ForegroundColour = al_map_rgb( 255, 255, 0 );
+		localPlanetTargetTurns->Location.Y = yPos;
+		localPlanetTargetTurns->Size.Y = Font->GetFontHeight() + 4;
+		localPlanetTargetTurns->TextVAlign = VerticalAlignment::Centre;
+		localPlanetTargetTurns->TextHAlign = HorizontalAlignment::Centre;
+	} else {
+		localPlanetTargetTurnsLabel = nullptr;
+		localPlanetTargetTurns = nullptr;
+	}
+
+	Size.Y = yPos + localPlanetDefenceLabel->Size.Y + 2;
+	lastSize.Y = Size.Y;
 }
 
 PlanetControl::~PlanetControl()
@@ -93,6 +117,12 @@ void PlanetControl::Update()
 		localPlanetDefenceLabel->Size.X = (Size.X / 1.5f);
 		localPlanetDefence->Location.X = (Size.X / 1.5f);
 		localPlanetDefence->Size.X = Size.X - localPlanetDefence->Location.X - 2;
+		if( localPlanetTargetTurnsLabel != nullptr )
+		{
+			localPlanetTargetTurnsLabel->Size.X = (Size.X / 1.5f);
+			localPlanetTargetTurns->Location.X = (Size.X / 1.5f);
+			localPlanetTargetTurns->Size.X = Size.X - localPlanetDefence->Location.X - 2;
+		}
 
 		lastSize.X = Size.X;
 		lastSize.Y = Size.Y;
@@ -111,6 +141,12 @@ void PlanetControl::SetPlanet( Planet* View )
 	UpdateInfo();
 }
 
+void PlanetControl::SetTarget( Planet* View )
+{
+	targetPlanet = View;
+	UpdateInfo();
+}
+
 void PlanetControl::SetPlayer( Player* View )
 {
 	viewingAs = View;
@@ -126,6 +162,11 @@ void PlanetControl::UpdateInfo()
 		localPlanetShips->SetText("N/A");
 		localPlanetProduction->SetText("N/A");
 		localPlanetDefence->SetText("N/A");
+
+		if( localPlanetTargetTurns != nullptr )
+		{
+			localPlanetTargetTurns->SetText("N/A");
+		}
 	} else {
 		localPlanetTitle->SetText(p->Name);
 		if( p->OwnedBy != nullptr && p->OwnedBy == viewingAs )
@@ -137,6 +178,14 @@ void PlanetControl::UpdateInfo()
 			localPlanetProduction->SetText("???");
 		}
 		localPlanetDefence->SetText( Strings::FromNumber(p->DefenceStats) );
+
+		if( localPlanetTargetTurns != nullptr && targetPlanet != nullptr )
+		{
+			Vector2 t( p->GridX, p->GridY );
+			Vector2* td = new Vector2( targetPlanet->GridX, targetPlanet->GridY );
+			localPlanetTargetTurns->SetText( Strings::FromNumber( Maths::Ceiling(t.DistanceTo( td )) ) );
+			delete td;
+		}
 	}
 
 }

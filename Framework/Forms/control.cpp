@@ -2,7 +2,7 @@
 #include "control.h"
 #include "forms.h"
 
-Control::Control(Control* Owner) : Name("Control"), owningControl(Owner), focusedChild(nullptr), BackgroundColour(al_map_rgb( 80, 80, 80 )), ForegroundColour(al_map_rgb(255, 255, 255)), CanFocus(false), AllowTab(false), mouseInside(false), mouseDepressed(false), controlArea(nullptr)
+Control::Control(Control* Owner) : Name("Control"), owningControl(Owner), focusedChild(nullptr), BackgroundColour(al_map_rgb( 80, 80, 80 )), ForegroundColour(al_map_rgb(255, 255, 255)), CanFocus(false), AllowTab(false), mouseInside(false), mouseDepressed(false), controlArea(nullptr), Location(-10,-10), Size(0, 0)
 {
 	if( Owner != nullptr )
 	{
@@ -228,7 +228,7 @@ void Control::Render()
 {
 	ALLEGRO_BITMAP* previousTarget = DISPLAY->GetCurrentTarget();
 
-	if( Size.X == 0 || Size.Y == 0 )
+	if( Size.X <= 0 || Size.Y <= 0 )
 	{
 		return;
 	}
@@ -253,10 +253,6 @@ void Control::Render()
 void Control::PreRender()
 {
 	al_clear_to_color( BackgroundColour );
-	//if( BackgroundColour.a != 0.0f )
-	//{
-	//	al_draw_filled_rectangle( 0, 0, Size.X, Size.Y, BackgroundColour );
-	//}
 }
 
 void Control::OnRender()

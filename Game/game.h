@@ -37,7 +37,10 @@ class Game : public Stage
 		Form* localInputForm;
 		GraphicButton* localInfoButton;
 		GraphicButton* localTransfersButton;
-		PlanetControl* localPlanetInfo;
+		Control* localInfoTab;
+		Control* localTransferTab;
+		PlanetControl* localPlanetInfoSource;
+		PlanetControl* localPlanetInfoTarget;
 		ListBox* localPlanetInFlightList;
 		TextButton* localPlanetLaunch;
 		TextButton* localPlanetEndTurn;
