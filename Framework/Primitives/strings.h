@@ -83,4 +83,11 @@ class Strings
 			return std::string(buffer);
 		}
 
+		static std::string FromNumber( float n )
+		{
+			char buffer[200];
+			sprintf( (char*)&buffer, "%.2f", n );
+			return std::string(buffer);
+		}
+
 };

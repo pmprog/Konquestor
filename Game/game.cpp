@@ -5,8 +5,11 @@
 Game::Game( int Planets, std::vector<Player*> Players )
 {
 	menuFont = FontCache::LoadFont( "resources/game.ttf", 48 );
-	detailFont = FontCache::LoadFont( "resources/game.ttf", 24 );
+	detailFont = FontCache::LoadFont( "resources/game.ttf", 20 );
 	selectSin = new Angle(0);
+
+	gridSourceX = -1;
+	gridSourceY = -1;
 	gridSelectX = 0;
 	gridSelectY = 0;
 
@@ -32,6 +35,7 @@ Game::Game( int Planets, std::vector<Player*> Players )
 			py = rand() % MAP_HEIGHT;
 		}
 		galacticMap[ (py * MAP_WIDTH) + px ] = new Planet();
+		galacticMap[ (py * MAP_WIDTH) + px ]->GenerateName( pi );
 		planetList.push_back(galacticMap[ (py * MAP_WIDTH) + px ]);
 	}
 
@@ -68,92 +72,18 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	localInputForm->Location.Y = 10;
 	localInputForm->Size.Y = DISPLAY->GetHeight() - 20;
 
-	Label* l = new Label( localInputForm, "No Planet", menuFont );
-	l->BackgroundColour.a = 0.5f;
-	l->Location.X = 2;
-	l->Location.Y = 2;
-	l->Size.X = localInputForm->Size.X - 4;
-	l->Size.Y = menuFont->GetFontHeight() + 4;
-	l->TextHAlign = HorizontalAlignment::Centre;
-	l->TextVAlign = VerticalAlignment::Centre;
-	localPlanetTitle = l;
+	localInfoButton = new GraphicButton( localInputForm, "resources/button_info.png", "resources/button_info_sel.png", "resources/button_info_hover.png" );
+	localInfoButton->Location.X = 0;
+	localInfoButton->Location.Y = 0;
+	localTransfersButton = new GraphicButton( localInputForm, "resources/button_xfer.png", "resources/button_xfer_sel.png", "resources/button_xfer_hover.png" );
+	localTransfersButton->Location.X = localInfoButton->Size.X;
+	localTransfersButton->Location.Y = 0;
 
-	Control* c = new Control( localInputForm );
-	c->BackgroundColour.a = 0.5f;
-	c->Location.X = 2;
-	c->Location.Y = l->Location.Y + l->Size.Y + 2;
-	c->Size.X = localInputForm->Size.X - 4;
-	c->Size.Y = ((menuFont->GetFontHeight() + 4) * 4) + 12;
-
-	int yPos = 2;
-
-	l = new Label( c, "Ships:", menuFont );
-	l->BackgroundColour.a = 0.0f;
-	l->Location.X = 2;
-	l->Location.Y = yPos;
-	l->Size.X = (c->Size.X / 1.5f);
-	l->Size.Y = menuFont->GetFontHeight() + 4;
-	l->TextVAlign = VerticalAlignment::Centre;
-
-	localPlanetShips = new Label( c, "N/A", menuFont );
-	localPlanetShips->BackgroundColour.a = 0.0f;
-	localPlanetShips->ForegroundColour = al_map_rgb( 255, 255, 0 );
-	localPlanetShips->Location.X = (c->Size.X / 1.5f);
-	localPlanetShips->Location.Y = yPos;
-	localPlanetShips->Size.X = c->Size.X - localPlanetShips->Location.X - 2;
-	localPlanetShips->Size.Y = menuFont->GetFontHeight() + 4;
-	localPlanetShips->TextVAlign = VerticalAlignment::Centre;
-	localPlanetShips->TextHAlign = HorizontalAlignment::Centre;
-
-	yPos += l->Size.Y + 2;
-
-	l = new Label( c, "Production:", menuFont );
-	l->BackgroundColour.a = 0.0f;
-	l->Location.X = 2;
-	l->Location.Y = yPos;
-	l->Size.X = (c->Size.X / 1.5f);
-	l->Size.Y = menuFont->GetFontHeight() + 4;
-	l->TextVAlign = VerticalAlignment::Centre;
-
-	localPlanetProduction = new Label( c, "N/A", menuFont );
-	localPlanetProduction->BackgroundColour.a = 0.0f;
-	localPlanetProduction->ForegroundColour = al_map_rgb( 255, 255, 0 );
-	localPlanetProduction->Location.X = (c->Size.X / 1.5f);
-	localPlanetProduction->Location.Y = yPos;
-	localPlanetProduction->Size.X = c->Size.X - localPlanetProduction->Location.X - 2;
-	localPlanetProduction->Size.Y = menuFont->GetFontHeight() + 4;
-	localPlanetProduction->TextVAlign = VerticalAlignment::Centre;
-	localPlanetProduction->TextHAlign = HorizontalAlignment::Centre;
-
-	yPos += l->Size.Y + 2;
-
-	l = new Label( c, "Defence:", menuFont );
-	l->BackgroundColour.a = 0.0f;
-	l->Location.X = 2;
-	l->Location.Y = yPos;
-	l->Size.X = (c->Size.X / 1.5f);
-	l->Size.Y = menuFont->GetFontHeight() + 4;
-	l->TextVAlign = VerticalAlignment::Centre;
-
-	localPlanetDefence = new Label( c, "N/A", menuFont );
-	localPlanetDefence->BackgroundColour.a = 0.0f;
-	localPlanetDefence->ForegroundColour = al_map_rgb( 255, 255, 0 );
-	localPlanetDefence->Location.X = (c->Size.X / 1.5f);
-	localPlanetDefence->Location.Y = yPos;
-	localPlanetDefence->Size.X = c->Size.X - localPlanetDefence->Location.X - 2;
-	localPlanetDefence->Size.Y = menuFont->GetFontHeight() + 4;
-	localPlanetDefence->TextVAlign = VerticalAlignment::Centre;
-	localPlanetDefence->TextHAlign = HorizontalAlignment::Centre;
-
-	yPos += l->Size.Y + 2;
-
-	localPlanetLaunch = new TextButton( c, "Launch", menuFont );
-	localPlanetLaunch->Name = "BTN_LAUNCH";
-	localPlanetLaunch->BackgroundColour.a = 0.0f;
-	localPlanetLaunch->Location.X = 2;
-	localPlanetLaunch->Location.Y = yPos;
-	localPlanetLaunch->Size.X = c->Size.X - 4;
-	localPlanetLaunch->Size.Y = menuFont->GetFontHeight() + 4;
+	localPlanetInfo = new PlanetControl( localInputForm , menuFont );
+	localPlanetInfo->Location.X = 2;
+	localPlanetInfo->Location.Y = localInfoButton->Size.Y + 2;
+	localPlanetInfo->Size.X = localInputForm->Size.X - 4;
+	localPlanetInfo->BackgroundColour.a = 0.0f;
 
 	localPlanetEndTurn = new TextButton( localInputForm, "End Turn", menuFont );
 	localPlanetEndTurn->Name = "BTN_ENDTURN";
@@ -165,8 +95,8 @@ Game::Game( int Planets, std::vector<Player*> Players )
 
 	localPlanetInFlightList = new ListBox( localInputForm );
 	localPlanetInFlightList->Location.X = 2;
-	localPlanetInFlightList->Location.Y = c->Location.Y + c->Size.Y + 2;
-	localPlanetInFlightList->Size.X = c->Size.X;
+	localPlanetInFlightList->Location.Y = localPlanetInfo->Location.Y + localPlanetInfo->Size.Y + 2;
+	localPlanetInFlightList->Size.X = localPlanetInfo->Size.X;
 	localPlanetInFlightList->Size.Y = localPlanetEndTurn->Location.Y - localPlanetInFlightList->Location.Y - 4;
 
 
@@ -246,8 +176,14 @@ void Game::EventOccurred(Event *e)
 	{
 		if( e->Data.Keyboard.KeyCode == ALLEGRO_KEY_ESCAPE )
 		{
-			delete FRAMEWORK->ProgramStages->Pop();
-			return;
+			if( gridSourceX >= 0 && gridSourceY >= 0 )
+			{
+				gridSourceX = -1;
+				gridSourceY = -1;
+			} else {
+				delete FRAMEWORK->ProgramStages->Pop();
+				return;
+			}
 		}
 
 		switch( e->Data.Keyboard.KeyCode )
@@ -256,24 +192,28 @@ void Game::EventOccurred(Event *e)
 				if( gridSelectX > 0 )
 				{
 					gridSelectX--;
+					DisplaySelectedPlanetInfo();
 				}
 				break;
 			case ALLEGRO_KEY_RIGHT:
 				if( gridSelectX < MAP_WIDTH - 1 )
 				{
 					gridSelectX++;
+					DisplaySelectedPlanetInfo();
 				}
 				break;
 			case ALLEGRO_KEY_UP:
 				if( gridSelectY > 0 )
 				{
 					gridSelectY--;
+					DisplaySelectedPlanetInfo();
 				}
 				break;
 			case ALLEGRO_KEY_DOWN:
 				if( gridSelectY < MAP_HEIGHT - 1 )
 				{
 					gridSelectY++;
+					DisplaySelectedPlanetInfo();
 				}
 				break;
 		}
@@ -285,6 +225,7 @@ void Game::EventOccurred(Event *e)
 		{
 			gridSelectX = ( e->Data.Mouse.X - 10 ) / MAP_GRIDSIZE;
 			gridSelectY = ( e->Data.Mouse.Y - 10 ) / MAP_GRIDSIZE;
+			DisplaySelectedPlanetInfo();
 		}
 	}
 
@@ -293,6 +234,11 @@ void Game::EventOccurred(Event *e)
 		if( e->Data.Forms.RaisedBy == localPlanetEndTurn )
 		{
 			NextPlayer();
+		}
+		if( e->Data.Forms.RaisedBy == localPlanetLaunch )
+		{
+			gridSourceX = gridSelectX;
+			gridSourceY = gridSelectY;
 		}
 	}
 
@@ -340,6 +286,10 @@ void Game::Render()
 	al_draw_line( 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10, 10 + (MAP_WIDTH * MAP_GRIDSIZE), 10 + (MAP_HEIGHT * MAP_GRIDSIZE), al_map_rgb( 255, 255, 255 ), 1 );
 
 	al_draw_rectangle( 10 + (gridSelectX * MAP_GRIDSIZE), 10 + (gridSelectY * MAP_GRIDSIZE), 10 + ((gridSelectX+1) * MAP_GRIDSIZE), 10 + ((gridSelectY+1) * MAP_GRIDSIZE), al_map_rgba_f( 1.0f, 1.0f, 0.0f, ((selectSin->Cosine() + 1.0f) / 4.0f) + 0.5f ), 3 );
+	if( gridSourceX >= 0 && gridSourceY >= 0 )
+	{
+		al_draw_rectangle( 10 + (gridSourceX * MAP_GRIDSIZE), 10 + (gridSourceY * MAP_GRIDSIZE), 10 + ((gridSourceX+1) * MAP_GRIDSIZE), 10 + ((gridSourceY+1) * MAP_GRIDSIZE), al_map_rgba_f( 0.0f, 0.4f, 1.0f, ((selectSin->Cosine() + 1.0f) / 4.0f) + 0.5f ), 3 );
+	}
 
 	std::string curplayer = playerList.at(currentPlayer)->Name;
 	curplayer.append( "'s Turn");
@@ -363,10 +313,12 @@ void Game::NextPlayer()
 	}
 
 	Player* p = playerList.at(currentPlayer);
+
 	switch( p->Interaction )
 	{
 		case PlayerType::LocalHuman:
 			activeInputForm = localInputForm;
+			localPlanetInfo->SetPlayer( p );
 			break;
 		case PlayerType::LocalComputer:
 			waitInputLabel->SetText("Waiting for AI");
@@ -402,4 +354,9 @@ void* Game::AIThread(ALLEGRO_THREAD* Thread, void* PlayerPtr)
 		}
 	}
 	return nullptr;
+}
+
+void Game::DisplaySelectedPlanetInfo()
+{
+	localPlanetInfo->SetPlanet( galacticMap[ (gridSelectY * MAP_WIDTH) + gridSelectX ] );
 }

@@ -14,6 +14,8 @@ class GraphicButton : public Control
 		ALLEGRO_BITMAP* imagedepressed;
 		ALLEGRO_BITMAP* imagehover;
 
+		void LoadResources();
+
 	protected:
 		virtual void OnRender();
 

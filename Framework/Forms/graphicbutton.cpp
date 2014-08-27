@@ -10,6 +10,8 @@ GraphicButton::GraphicButton( Control* Owner, std::string Image, std::string Ima
 	image_name = Image;
 	imagedepressed_name = ImageDepressed;
 	imagehover_name = "";
+
+	LoadResources();
 }
 
 GraphicButton::GraphicButton( Control* Owner, std::string Image, std::string ImageDepressed, std::string ImageHover ) : Control( Owner )
@@ -21,6 +23,8 @@ GraphicButton::GraphicButton( Control* Owner, std::string Image, std::string Ima
 	image_name = Image;
 	imagedepressed_name = ImageDepressed;
 	imagehover_name = ImageHover;
+
+	LoadResources();
 }
 
 GraphicButton::~GraphicButton()
@@ -58,10 +62,8 @@ void GraphicButton::EventOccured( Event* e )
 	}
 }
 
-void GraphicButton::OnRender()
+void GraphicButton::LoadResources()
 {
-	ALLEGRO_BITMAP* useimage;
-
 	if( image == nullptr && image_name != "" )
 	{
 		image = BitmapCache::LoadBitmap( image_name );
@@ -98,6 +100,13 @@ void GraphicButton::OnRender()
 			Size.Y = al_get_bitmap_height( imagehover );
 		}
 	}
+}
+
+void GraphicButton::OnRender()
+{
+	ALLEGRO_BITMAP* useimage;
+
+	LoadResources();
 
 	useimage = image;
 	if( mouseDepressed )

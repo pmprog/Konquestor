@@ -5,6 +5,7 @@
 #include "player.h"
 #include "planet.h"
 #include "../Framework/Primitives/angle.h"
+#include "planetcontrol.h"
 
 #define MAP_WIDTH		8
 #define MAP_HEIGHT	7
@@ -12,6 +13,7 @@
 
 class Game : public Stage
 {
+
 	private:
 		TTFFont* menuFont;
 		TTFFont* detailFont;
@@ -22,6 +24,9 @@ class Game : public Stage
 		Planet* galacticMap[ MAP_WIDTH * MAP_HEIGHT ];
 		std::vector<Planet*> planetList;
 
+		int gridSourceX;
+		int gridSourceY;
+
 		int gridSelectX;
 		int gridSelectY;
 
@@ -30,10 +35,9 @@ class Game : public Stage
 		std::vector<ALLEGRO_THREAD*> AIThreads;
 
 		Form* localInputForm;
-		Label* localPlanetTitle;
-		Label* localPlanetShips;
-		Label* localPlanetProduction;
-		Label* localPlanetDefence;
+		GraphicButton* localInfoButton;
+		GraphicButton* localTransfersButton;
+		PlanetControl* localPlanetInfo;
 		ListBox* localPlanetInFlightList;
 		TextButton* localPlanetLaunch;
 		TextButton* localPlanetEndTurn;
@@ -41,6 +45,8 @@ class Game : public Stage
 		Form* waitInputForm;
 		Label* waitInputLabel;
 		Form* activeInputForm;
+
+		void DisplaySelectedPlanetInfo();
 
   public:
 		int TurnNumber;
@@ -63,4 +69,5 @@ class Game : public Stage
     virtual void Update();
     virtual void Render();
 		virtual bool IsTransition();
+
 };
