@@ -114,6 +114,15 @@ void VScrollBar::OnRender()
 
 void VScrollBar::Update()
 {
+	if( Value < Minimum )
+	{
+		Value = Minimum;
+	}
+	if( Value > Maximum )
+	{
+		Value = Maximum;
+	}
+
 	if( IsFocused() )
 	{
 		selectedTimer = (selectedTimer + 1) % VSCROLLBAR_SELECT_TOGGLE_TIME;

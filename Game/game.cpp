@@ -5,7 +5,7 @@
 Game::Game( int Planets, std::vector<Player*> Players )
 {
 	menuFont = FontCache::LoadFont( "resources/game.ttf", 48 );
-	detailFont = FontCache::LoadFont( "resources/game.ttf", 20 );
+	detailFont = FontCache::LoadFont( "resources/game.ttf", 36 );
 	selectSin = new Angle(0);
 
 	gridSourceX = -1;
@@ -53,8 +53,8 @@ Game::Game( int Planets, std::vector<Player*> Players )
 		}
 		planetList.at( pi )->OwnedBy = pl;
 		planetList.at( pi )->DefenceStats = 0.7f;
-		planetList.at( pi )->ProductionRate = 3;
-		planetList.at( pi )->Ships = 10;
+		planetList.at( pi )->ProductionRate = 5;
+		planetList.at( pi )->Ships = 13;
 
 		if( pl->Interaction == PlayerType::LocalComputer )
 		{
@@ -104,8 +104,9 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	localTransferTab->Size.Y = localPlanetEndTurn->Location.Y - 2 - localTransferTab->Location.Y;
 
 
+	////////////////////////////////// localInfoTab
 
-	localPlanetInfoSource = new PlanetControl( localInfoTab , menuFont, false );
+	localPlanetInfoSource = new PlanetControl( localInfoTab , detailFont, false );
 	localPlanetInfoSource->BackgroundColour.a = 0.0f;
 	localPlanetInfoSource->Location.X = 2;
 	localPlanetInfoSource->Location.Y = 2;
@@ -117,13 +118,57 @@ Game::Game( int Planets, std::vector<Player*> Players )
 	localPlanetLaunch->Size.X = localInfoTab->Size.X - 4;
 	localPlanetLaunch->Size.Y = menuFont->GetFontHeight() + 6;
 
-	localPlanetInfoTarget = new PlanetControl( localInfoTab , menuFont, true );
+	localPlanetInfoTarget = new PlanetControl( localInfoTab , detailFont, true );
 	localPlanetInfoTarget->BackgroundColour.a = 0.0f;
 	localPlanetInfoTarget->Location.X = 2000;
 	localPlanetInfoTarget->Location.Y = localPlanetInfoSource->Size.Y + 4;
 	localPlanetInfoTarget->Size.X = localInfoTab->Size.X - 4;
 
+	int preexpansiony = localPlanetInfoTarget->Size.Y;
+	localPlanetInfoTarget->Size.Y = localInfoTab->Size.Y - 2 - localPlanetInfoTarget->Location.Y;
 
+
+	Label* l = new Label( localPlanetInfoTarget, "Ships to Send", detailFont );
+	l->BackgroundColour.a = 0.0f;
+	l->Location.X = 2;
+	l->Location.Y = preexpansiony;
+	l->Size.X = localPlanetInfoTarget->Size.X / 1.5f;
+	l->Size.Y = detailFont->GetFontHeight() + 4;
+	l->TextVAlign = VerticalAlignment::Centre;
+
+	localPlanetTargetSliderValue = new Label( localPlanetInfoTarget, "0", detailFont );
+	localPlanetTargetSliderValue->BackgroundColour.a = 0.0f;
+	localPlanetTargetSliderValue->ForegroundColour = al_map_rgb( 255, 255, 0 );
+	localPlanetTargetSliderValue->Location.X = localPlanetInfoTarget->Size.X / 1.5f;
+	localPlanetTargetSliderValue->Location.Y = preexpansiony;
+	localPlanetTargetSliderValue->Size.X = localPlanetInfoTarget->Size.X - localPlanetTargetSliderValue->Location.X - 2;
+	localPlanetTargetSliderValue->Size.Y = detailFont->GetFontHeight() + 4;
+	localPlanetTargetSliderValue->TextVAlign = VerticalAlignment::Centre;
+	localPlanetTargetSliderValue->TextHAlign = HorizontalAlignment::Centre;
+
+	localPlanetTargetSlider = new HScrollBar( localPlanetInfoTarget );
+	localPlanetTargetSlider->BackgroundColour = al_map_rgb(0, 0, 0);
+	localPlanetTargetSlider->Minimum = 0;
+	localPlanetTargetSlider->Maximum = 0;
+	localPlanetTargetSlider->Value = 0;
+	localPlanetTargetSlider->Location.X = 2;
+	localPlanetTargetSlider->Location.Y = preexpansiony + detailFont->GetFontHeight() + 6;
+	localPlanetTargetSlider->Size.X = localPlanetInfoTarget->Size.X - 4;
+	localPlanetTargetSlider->Size.Y = 16;
+
+	localPlanetCancelLaunch = new TextButton( localPlanetInfoTarget, "Cancel", detailFont );
+	localPlanetCancelLaunch->Location.X = 2;
+	localPlanetCancelLaunch->Location.Y = localPlanetInfoTarget->Size.Y - 6 - detailFont->GetFontHeight();
+	localPlanetCancelLaunch->Size.X = (localPlanetInfoTarget->Size.X - 6) / 2;
+	localPlanetCancelLaunch->Size.Y = detailFont->GetFontHeight() + 4;
+
+	localPlanetSendShips = new TextButton( localPlanetInfoTarget, "Send", detailFont );
+	localPlanetSendShips->Location.X = 4 + localPlanetCancelLaunch->Size.X;
+	localPlanetSendShips->Location.Y = localPlanetInfoTarget->Size.Y - 6 - detailFont->GetFontHeight();
+	localPlanetSendShips->Size.X = (localPlanetInfoTarget->Size.X - 6) / 2;
+	localPlanetSendShips->Size.Y = detailFont->GetFontHeight() + 4;
+
+	////////////////////////////////// localTransferTab
 
 	localPlanetInFlightList = new ListBox( localTransferTab );
 	localPlanetInFlightList->Location.X = 2;
@@ -210,6 +255,8 @@ void Game::EventOccurred(Event *e)
 		{
 			if( gridSourceX >= 0 && gridSourceY >= 0 )
 			{
+				gridSelectX = gridSourceX;
+				gridSelectY = gridSourceY;
 				gridSourceX = -1;
 				gridSourceY = -1;
 				DisplaySelectedPlanetInfo();
@@ -262,6 +309,14 @@ void Game::EventOccurred(Event *e)
 		}
 	}
 
+	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.EventFlag == FormEventType::ScrollBarChange )
+	{
+		if( e->Data.Forms.RaisedBy == localPlanetTargetSlider )
+		{
+			localPlanetTargetSliderValue->SetText(Strings::FromNumber(localPlanetTargetSlider->Value));
+		}
+	}
+
 	if( e->Type == EVENT_FORM_INTERACTION && e->Data.Forms.EventFlag == FormEventType::ButtonClick )
 	{
 		if( e->Data.Forms.RaisedBy == localPlanetEndTurn )
@@ -283,6 +338,19 @@ void Game::EventOccurred(Event *e)
 			gridSourceX = gridSelectX;
 			gridSourceY = gridSelectY;
 			DisplaySelectedPlanetInfo();
+		}
+		if( e->Data.Forms.RaisedBy == localPlanetCancelLaunch )
+		{
+			gridSelectX = gridSourceX;
+			gridSelectY = gridSourceY;
+			gridSourceX = -1;
+			gridSourceY = -1;
+			DisplaySelectedPlanetInfo();
+		}
+
+		if( e->Data.Forms.RaisedBy == localPlanetSendShips )
+		{
+			// TODO: Launch Ships
 		}
 	}
 
@@ -421,6 +489,16 @@ void Game::DisplaySelectedPlanetInfo()
 	if( gridSourceX < 0 )
 	{
 		localPlanetInfoSource->SetPlanet( p );
+		if( p != nullptr )
+		{
+			localPlanetTargetSlider->Maximum = p->Ships;
+			localPlanetTargetSlider->Value = p->Ships;
+			localPlanetTargetSliderValue->SetText(Strings::FromNumber(p->Ships));
+		} else {
+			localPlanetTargetSlider->Maximum = 0;
+			localPlanetTargetSlider->Value = 0;
+			localPlanetTargetSliderValue->SetText("0");
+		}
 	} else {
 		localPlanetInfoTarget->SetPlanet( p );
 		localPlanetInfoTarget->SetTarget( galacticMap[ (gridSourceY * MAP_WIDTH) + gridSourceX ] );

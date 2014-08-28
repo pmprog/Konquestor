@@ -113,6 +113,15 @@ void HScrollBar::OnRender()
 
 void HScrollBar::Update()
 {
+	if( Value < Minimum )
+	{
+		Value = Minimum;
+	}
+	if( Value > Maximum )
+	{
+		Value = Maximum;
+	}
+
 	if( IsFocused() )
 	{
 		selectedTimer = (selectedTimer + 1) % HSCROLLBAR_SELECT_TOGGLE_TIME;

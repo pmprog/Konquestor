@@ -94,9 +94,9 @@ NewLocalGame::NewLocalGame()
 
 	hs->Size.X = l->Location.X - hs->Location.X - 4;
 	hs->Size.Y = l->Size.Y - 8;
-	hs->Minimum = 2;
-	hs->Maximum = 9;
-	hs->Value = 4;
+	hs->Minimum = 5;
+	hs->Maximum = 15;
+	hs->Value = 9;
 	hs->BackgroundColour = al_map_rgb( 0, 0, 0 );
 	hs->CanFocus = true;
 

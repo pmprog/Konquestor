@@ -41,8 +41,12 @@ class Game : public Stage
 		Control* localTransferTab;
 		PlanetControl* localPlanetInfoSource;
 		PlanetControl* localPlanetInfoTarget;
+		Label* localPlanetTargetSliderValue;
+		HScrollBar* localPlanetTargetSlider;
 		ListBox* localPlanetInFlightList;
 		TextButton* localPlanetLaunch;
+		TextButton* localPlanetCancelLaunch;
+		TextButton* localPlanetSendShips;
 		TextButton* localPlanetEndTurn;
 
 		Form* waitInputForm;
